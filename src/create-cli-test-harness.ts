@@ -6,6 +6,10 @@ interface CLITestHarnessOptions {
    */
   binPath: string;
   /**
+   * An array of static arguments that will be used every time when running the bin
+   */
+  staticArgs?: string[];
+  /**
    * An optional class to use to create the project
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,7 +24,7 @@ interface RunOptions {
   /**
    * Options to provide to execa. @see https://github.com/sindresorhus/execa#options
    */
-  execaOptions: execa.Options<string>;
+  execaOptions?: execa.Options<string>;
 }
 
 interface CreateCLITestHarnessResult<TProject extends CLITestProject> {
@@ -31,6 +35,7 @@ interface CreateCLITestHarnessResult<TProject extends CLITestProject> {
 }
 
 const DEFAULT_CLI_TEST_HARNESS_OPTIONS = {
+  staticArgs: [],
   projectConstructor: CLITestProject,
 };
 
@@ -56,12 +61,16 @@ export function createCLITestHarness<TProject extends CLITestProject>(
   };
 
   function runBin(runOptions: Partial<RunOptions> = DEFAULT_RUN_OPTIONS) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return execa(process.execPath, [options.binPath, ...runOptions.args!], {
-      reject: false,
-      cwd: project.baseDir,
-      ...runOptions.execaOptions,
-    });
+    return execa(
+      process.execPath,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      [mergedOptions.binPath, ...mergedOptions.staticArgs, ...runOptions.args!],
+      {
+        reject: false,
+        cwd: project.baseDir,
+        ...runOptions.execaOptions,
+      }
+    );
   }
 
   async function setupProject() {

@@ -7,10 +7,9 @@ class FakeProject extends CLITestProject {}
 
 describe('createCLITestHarness', () => {
   test('should return object with specific properties from createCLITestHarness', () => {
-    const { runBin, setupProject, setupTmpDir, teardownProject } =
-      createCLITestHarness({
-        binPath: './foo',
-      });
+    const { runBin, setupProject, setupTmpDir, teardownProject } = createCLITestHarness({
+      binPath: './foo',
+    });
 
     expect(runBin).toBeTypeOf('function');
     expect(setupProject).toBeTypeOf('function');
@@ -68,15 +67,34 @@ describe('createCLITestHarness', () => {
       binPath: fileURLToPath(new URL('fixtures/fake-bin.js', import.meta.url)),
     });
 
-    await setupProject();
+    const project = await setupProject();
 
     const result = await runBin();
 
-    expect(result.stdout).toMatchInlineSnapshot(
-      '"I am a bin who takes args []"'
-    );
+    expect(result.stdout).toMatchInlineSnapshot('"I am a bin who takes args []"');
 
     teardownProject();
+
+    expect(existsSync(project.baseDir)).toEqual(false);
+  });
+
+  test('runBin can run the configured bin script with static arguments', async () => {
+    const { setupProject, teardownProject, runBin } = createCLITestHarness({
+      binPath: fileURLToPath(new URL('fixtures/fake-bin.js', import.meta.url)),
+      staticArgs: ['--static', 'true'],
+    });
+
+    const project = await setupProject();
+
+    const result = await runBin({
+      args: ['--with', 'some', '--arguments'],
+    });
+
+    expect(result.stdout).toMatchInlineSnapshot('"I am a bin who takes args [ \'--static\', \'true\', \'--with\', \'some\', \'--arguments\' ]"');
+
+    teardownProject();
+
+    expect(existsSync(project.baseDir)).toEqual(false);
   });
 
   test('runBin can run the configured bin script with arguments', async () => {
@@ -84,16 +102,16 @@ describe('createCLITestHarness', () => {
       binPath: fileURLToPath(new URL('fixtures/fake-bin.js', import.meta.url)),
     });
 
-    await setupProject();
+    const project = await setupProject();
 
     const result = await runBin({
       args: ['--with', 'some', '--arguments'],
     });
 
-    expect(result.stdout).toMatchInlineSnapshot(
-      '"I am a bin who takes args [ \'--with\', \'some\', \'--arguments\' ]"'
-    );
+    expect(result.stdout).toMatchInlineSnapshot('"I am a bin who takes args [ \'--with\', \'some\', \'--arguments\' ]"');
 
     teardownProject();
+
+    expect(existsSync(project.baseDir)).toEqual(false);
   });
 });
