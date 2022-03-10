@@ -1,13 +1,13 @@
 import { statSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, test, expect } from 'vitest';
-import { createCLITestHarness, CLITestProject } from '../src';
+import { createBinTester, BinTesterProject } from '../src';
 
-class FakeProject extends CLITestProject {}
+class FakeProject extends BinTesterProject {}
 
-describe('createCLITestHarness', () => {
-  test('should return object with specific properties from createCLITestHarness', () => {
-    const { runBin, setupProject, setupTmpDir, teardownProject } = createCLITestHarness({
+describe('createBinTester', () => {
+  test('should return object with specific properties from createBinTester', () => {
+    const { runBin, setupProject, setupTmpDir, teardownProject } = createBinTester({
       binPath: './foo',
     });
 
@@ -18,7 +18,7 @@ describe('createCLITestHarness', () => {
   });
 
   test('setupTmpDir should return a tmpDir that points to a tmp dir path', async () => {
-    const { setupTmpDir } = createCLITestHarness({
+    const { setupTmpDir } = createBinTester({
       binPath: './foo',
     });
 
@@ -28,17 +28,17 @@ describe('createCLITestHarness', () => {
   });
 
   test('setupProject should return a default project', async () => {
-    const { setupProject } = createCLITestHarness({
+    const { setupProject } = createBinTester({
       binPath: './foo',
     });
 
     const project = await setupProject();
 
-    expect(project).toBeInstanceOf(CLITestProject);
+    expect(project).toBeInstanceOf(BinTesterProject);
   });
 
   test('setupProject should return a custom project', async () => {
-    const { setupProject } = createCLITestHarness({
+    const { setupProject } = createBinTester({
       binPath: './foo',
       projectConstructor: FakeProject,
     });
@@ -49,13 +49,13 @@ describe('createCLITestHarness', () => {
   });
 
   test('teardownProject should result in the project being disposed of', async () => {
-    const { setupProject, teardownProject } = createCLITestHarness({
+    const { setupProject, teardownProject } = createBinTester({
       binPath: './foo',
     });
 
     const project = await setupProject();
 
-    expect(project).toBeInstanceOf(CLITestProject);
+    expect(project).toBeInstanceOf(BinTesterProject);
 
     teardownProject();
 
@@ -63,7 +63,7 @@ describe('createCLITestHarness', () => {
   });
 
   test('runBin can run the configured bin script', async () => {
-    const { setupProject, teardownProject, runBin } = createCLITestHarness({
+    const { setupProject, teardownProject, runBin } = createBinTester({
       binPath: fileURLToPath(new URL('fixtures/fake-bin.js', import.meta.url)),
     });
 
@@ -79,7 +79,7 @@ describe('createCLITestHarness', () => {
   });
 
   test('runBin can run the configured bin script with static arguments', async () => {
-    const { setupProject, teardownProject, runBin } = createCLITestHarness({
+    const { setupProject, teardownProject, runBin } = createBinTester({
       binPath: fileURLToPath(new URL('fixtures/fake-bin.js', import.meta.url)),
       staticArgs: ['--static', 'true'],
     });
@@ -98,7 +98,7 @@ describe('createCLITestHarness', () => {
   });
 
   test('runBin can run the configured bin script with arguments', async () => {
-    const { setupProject, teardownProject, runBin } = createCLITestHarness({
+    const { setupProject, teardownProject, runBin } = createBinTester({
       binPath: fileURLToPath(new URL('fixtures/fake-bin.js', import.meta.url)),
     });
 

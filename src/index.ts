@@ -1,2 +1,2 @@
-export { createCLITestHarness } from './create-cli-test-harness';
-export { default as CLITestProject } from './project';
+export { createBinTester } from './create-bin-tester';
+export { default as BinTesterProject } from './project';

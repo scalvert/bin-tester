@@ -1,6 +1,6 @@
 import execa from 'execa';
-import CLITestProject from './project';
-interface CLITestHarnessOptions {
+import BinTesterProject from './project';
+interface BinTesterOptions {
   /**
    * The absolute path to the bin to invoke
    */
@@ -27,16 +27,16 @@ interface RunOptions {
   execaOptions?: execa.Options<string>;
 }
 
-interface CreateCLITestHarnessResult<TProject extends CLITestProject> {
+interface CreateBinTesterResult<TProject extends BinTesterProject> {
   runBin: (runOptions?: RunOptions) => execa.ExecaChildProcess<string>;
   setupProject: () => Promise<TProject>;
   setupTmpDir: () => Promise<string>;
   teardownProject: () => void;
 }
 
-const DEFAULT_CLI_TEST_HARNESS_OPTIONS = {
+const DEFAULT_BIN_TESTER_OPTIONS = {
   staticArgs: [],
-  projectConstructor: CLITestProject,
+  projectConstructor: BinTesterProject,
 };
 
 const DEFAULT_RUN_OPTIONS = {
@@ -45,18 +45,18 @@ const DEFAULT_RUN_OPTIONS = {
 };
 
 /**
- * Creates the test harness API functions to use within tests.
+ * Creates the bin tester API functions to use within tests.
  *
- * @param options - An object of test harness options
+ * @param options - An object of bin tester options
  * @returns - A project instance.
  */
-export function createCLITestHarness<TProject extends CLITestProject>(
-  options: CLITestHarnessOptions
-): CreateCLITestHarnessResult<TProject> {
+export function createBinTester<TProject extends BinTesterProject>(
+  options: BinTesterOptions
+): CreateBinTesterResult<TProject> {
   let project: TProject;
 
-  const mergedOptions: Required<CLITestHarnessOptions> = {
-    ...DEFAULT_CLI_TEST_HARNESS_OPTIONS,
+  const mergedOptions: Required<BinTesterOptions> = {
+    ...DEFAULT_BIN_TESTER_OPTIONS,
     ...options,
   };
 

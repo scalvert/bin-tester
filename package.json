@@ -1,5 +1,5 @@
 {
-  "name": "@scalvert/cli-test-harness",
+  "name": "@scalvert/bin-tester",
   "version": "0.0.3",
   "description": "A test harness to invoke a CLI in a tmp directory",
   "keywords": [
@@ -11,7 +11,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/scalvert/cli-test-harness.git"
+    "url": "https://github.com/scalvert/bin-tester.git"
   },
   "license": "MIT",
   "author": "Steve Calvert <steve.calvert@gmail.com>",

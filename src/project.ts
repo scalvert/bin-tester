@@ -3,7 +3,7 @@ import { Project } from 'fixturify-project';
 
 const ROOT = process.cwd();
 
-export default class CLITestProject extends Project {
+export default class BinTesterProject extends Project {
   private _dirChanged = false;
 
   constructor(
