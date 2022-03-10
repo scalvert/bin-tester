@@ -35,6 +35,9 @@
     "test:watch": "vitest",
     "watch": "npm run build -- --watch src"
   },
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "execa": "^5.1.1",
     "fixturify-project": "^4.1.0"
