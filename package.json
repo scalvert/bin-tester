@@ -24,6 +24,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "docs:generate": "npm run build && readme-api-generator dist/index.js",
     "lint": "eslint .",
     "prepublishOnly": "npm run build",
     "test": "vitest run",
@@ -35,6 +36,7 @@
     "fixturify-project": "^4.1.0"
   },
   "devDependencies": {
+    "@scalvert/readme-api-generator": "^0.1.0",
     "@typescript-eslint/eslint-plugin": "^5.14.0",
     "@typescript-eslint/parser": "^5.14.0",
     "eslint": "^8.10.0",
@@ -49,6 +51,9 @@
     "typescript": "^4.6.2",
     "vite": "^2.8.6",
     "vitest": "^0.6.0"
+  },
+  "engines": {
+    "node": ">=14"
   },
   "volta": {
     "node": "14.19.0",

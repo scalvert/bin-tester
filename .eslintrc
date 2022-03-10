@@ -12,11 +12,6 @@
     "ecmaVersion": 2018,
     "sourceType": "module"
   },
-  "settings": {
-    "jest": {
-      "version": 27
-    }
-  },
   "env": {
     "browser": false,
     "node": true,
@@ -36,6 +31,12 @@
       }
     ],
     "node/no-extraneous-import": ["error"],
+    "node/no-unpublished-import": [
+      "error",
+      {
+        "allowModules": ["vitest"]
+      }
+    ],
     "tsdoc/syntax": "warn"
   }
 }
