@@ -4,9 +4,13 @@ import { Project } from 'fixturify-project';
 const ROOT = process.cwd();
 
 export default class CLITestProject extends Project {
-  private _dirChanged: boolean = false;
+  private _dirChanged = false;
 
-  constructor(name: string, version?: string, cb?: (project: Project) => void) {
+  constructor(
+    name = 'fake-project',
+    version?: string,
+    cb?: (project: Project) => void
+  ) {
     super(name, version, cb);
 
     this.pkg = Object.assign({}, this.pkg, {
