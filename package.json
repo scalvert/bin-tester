@@ -1,5 +1,5 @@
 {
-  "name": "cli-test-harness",
+  "name": "@scalvert/cli-test-harness",
   "version": "0.0.1",
   "description": "A test harness to invoke a CLI in a tmp directory",
   "keywords": [
@@ -62,7 +62,8 @@
     "node": ">=14"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org"
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
   },
   "release-it": {
     "plugins": {
