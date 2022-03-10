@@ -34,9 +34,17 @@
     "node/no-unpublished-import": [
       "error",
       {
-        "allowModules": ["vitest"]
+        "allowModules": ["vite", "vitest"]
       }
     ],
     "tsdoc/syntax": "warn"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["tests/fixtures/fake-bin.js"],
+      "rules": {
+        "node/shebang": "off"
+      }
+    }
+  ]
 }

@@ -31,7 +31,7 @@
     "docs:generate": "npm run build && readme-api-generator dist/index.js",
     "lint": "eslint .",
     "prepublishOnly": "npm run build",
-    "test": "vitest run",
+    "test": "npm run lint && vitest run",
     "test:watch": "vitest",
     "watch": "npm run build -- --watch src"
   },

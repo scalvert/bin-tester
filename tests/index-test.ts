@@ -73,7 +73,7 @@ describe('createCLITestHarness', () => {
     const result = await runBin();
 
     expect(result.stdout).toMatchInlineSnapshot(
-      '"I am a bin who takes args  []"'
+      '"I am a bin who takes args []"'
     );
 
     teardownProject();
@@ -91,7 +91,7 @@ describe('createCLITestHarness', () => {
     });
 
     expect(result.stdout).toMatchInlineSnapshot(
-      "\"I am a bin who takes args  [ '--with', 'some', '--arguments' ]\""
+      '"I am a bin who takes args [ \'--with\', \'some\', \'--arguments\' ]"'
     );
 
     teardownProject();
