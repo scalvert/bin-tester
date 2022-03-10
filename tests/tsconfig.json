@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "importHelpers": true,
+    "module": "esnext",
+    "moduleResolution": "Node",
+    "strict": true,
+    "target": "es2020",
+    "skipLibCheck": true
+  }
+}
