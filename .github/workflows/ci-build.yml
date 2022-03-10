@@ -1,0 +1,31 @@
+name: CI Build
+
+on:
+  push:
+    branches:
+      - master
+      - 'v*'
+  pull_request: {}
+  schedule:
+    - cron: '0 3 * * *' # daily, at 3am
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node: ['14']
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: volta-cli/action@v1
+        with:
+          node-version: ${{ matrix.node }}
+      - name: install dependencies
+        run: npm install
+      - name: build
+        run: npm run build
+      - name: test
+        run: npm test
