@@ -69,6 +69,31 @@ describe('Some tests', () => {
 
 ## API
 
-<!--DOCS_START-->
+```ts
+class CLITestProject extends Project {
+    private _dirChanged;
+    constructor(name: string, version?: string, cb?: (project: Project) => void);
+    gitInit(): execa.ExecaChildProcess<string>;
+    chdir(): void;
+    dispose(): void;
+}
 
-<!--DOCS_END-->
+interface CLITestHarnessOptions {
+    binPath: string;
+    projectConstructor?: any;
+}
+
+interface RunOptions {
+    args?: string[];
+    execaOptions?: execa.Options<string>;
+}
+
+interface CreateCLITestHarnessResult<TProject extends CLITestProject> {
+    runBin: (runOptions?: RunOptions) => execa.ExecaChildProcess<string>;
+    setupProject: () => Promise<TProject>;
+    setupTmpDir: () => Promise<string>;
+    teardownProject: () => void;
+}
+
+function createCLITestHarness<TProject extends CLITestProject>(options: CLITestHarnessOptions): CreateCLITestHarnessResult<TProject>;
+```

@@ -8,8 +8,10 @@ interface CLITestHarnessOptions {
   /**
    * An optional class to use to create the project
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   projectConstructor?: any;
 }
+
 interface RunOptions {
   /**
    * Arguments to provide to the bin script.
@@ -28,6 +30,10 @@ interface CreateCLITestHarnessResult<TProject extends CLITestProject> {
   teardownProject: () => void;
 }
 
+const DEFAULT_CLI_TEST_HARNESS_OPTIONS = {
+  projectConstructor: CLITestProject,
+};
+
 const DEFAULT_RUN_OPTIONS = {
   args: [],
   execaOptions: {},
@@ -45,7 +51,7 @@ export function createCLITestHarness<TProject extends CLITestProject>(
   let project: TProject;
 
   const mergedOptions: Required<CLITestHarnessOptions> = {
-    projectConstructor: CLITestProject,
+    ...DEFAULT_CLI_TEST_HARNESS_OPTIONS,
     ...options,
   };
 
