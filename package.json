@@ -1,6 +1,6 @@
 {
   "name": "@scalvert/cli-test-harness",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A test harness to invoke a CLI in a tmp directory",
   "keywords": [
     "cli",
