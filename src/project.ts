@@ -1,4 +1,5 @@
 import execa from 'execa';
+import fixturify from 'fixturify';
 import { Project } from 'fixturify-project';
 
 const ROOT = process.cwd();
@@ -28,6 +29,15 @@ export default class BinTesterProject extends Project {
     this._dirChanged = true;
 
     process.chdir(this.baseDir);
+  }
+
+  writeJSON(dirJSON: fixturify.DirJSON) {
+    this.files = {
+      ...this.files,
+      ...dirJSON
+    };
+
+    return super.write();
   }
 
   dispose() {
