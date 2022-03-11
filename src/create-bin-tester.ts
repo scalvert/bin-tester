@@ -1,6 +1,7 @@
 import execa from 'execa';
+import { Constructor } from 'type-fest';
 import BinTesterProject from './project';
-interface BinTesterOptions {
+interface BinTesterOptions<TProject> {
   /**
    * The absolute path to the bin to invoke
    */
@@ -12,15 +13,14 @@ interface BinTesterOptions {
   /**
    * An optional class to use to create the project
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  projectConstructor?: any;
+  projectConstructor?: Constructor<TProject>;
 }
 
 interface RunOptions {
   /**
    * Arguments to provide to the bin script.
    */
-  args: string[];
+  args?: string[];
   /**
    * Options to provide to execa. @see https://github.com/sindresorhus/execa#options
    */
@@ -51,24 +51,28 @@ const DEFAULT_RUN_OPTIONS = {
  * @returns - A project instance.
  */
 export function createBinTester<TProject extends BinTesterProject>(
-  options: BinTesterOptions
+  options: BinTesterOptions<TProject>
 ): CreateBinTesterResult<TProject> {
   let project: TProject;
 
-  const mergedOptions: Required<BinTesterOptions> = {
+  const mergedOptions = {
     ...DEFAULT_BIN_TESTER_OPTIONS,
     ...options,
-  };
+  } as Required<BinTesterOptions<TProject>>;
 
-  function runBin(runOptions: Partial<RunOptions> = DEFAULT_RUN_OPTIONS) {
+  function runBin(runOptions: RunOptions = {}) {
+    const mergedRunOptions = {
+      ...DEFAULT_RUN_OPTIONS,
+      ...runOptions
+    }
+
     return execa(
       process.execPath,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      [mergedOptions.binPath, ...mergedOptions.staticArgs, ...runOptions.args!],
+      [mergedOptions.binPath, ...mergedOptions.staticArgs, ...mergedRunOptions.args],
       {
         reject: false,
         cwd: project.baseDir,
-        ...runOptions.execaOptions,
+        ...mergedRunOptions.execaOptions,
       }
     );
   }
