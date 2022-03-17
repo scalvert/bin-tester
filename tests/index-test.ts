@@ -40,7 +40,7 @@ describe('createBinTester', () => {
   test('setupProject should return a custom project', async () => {
     const { setupProject } = createBinTester({
       binPath: './foo',
-      projectConstructor: FakeProject,
+      createProject: () => new FakeProject(),
     });
 
     const project = await setupProject();

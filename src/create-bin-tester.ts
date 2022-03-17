@@ -1,5 +1,4 @@
 import execa from 'execa';
-import { Constructor } from 'type-fest';
 import BinTesterProject from './project';
 interface BinTesterOptions<TProject> {
   /**
@@ -11,13 +10,9 @@ interface BinTesterOptions<TProject> {
    */
   staticArgs?: string[];
   /**
-   * An optional class to use to create the project
+   * An optional function to use to create the project. Use this if you want to provide a custom implementation of a BinTesterProject.
    */
-  projectConstructor?: Constructor<TProject>;
-  /**
-   * An optional function to use to create the project.
-   */
-  createProject?: (project?: TProject) => Promise<TProject>;
+  createProject?: () => TProject;
 }
 
 interface RunOptions {
@@ -84,7 +79,6 @@ export function createBinTester<TProject extends BinTesterProject>(
   function runBin(...args: RunBinArgs): execa.ExecaChildProcess<string> {
     const mergedRunOptions = parseArgs(args);
 
-    console.log(mergedRunOptions.execaOptions);
     return execa(
       process.execPath,
       [mergedOptions.binPath, ...mergedOptions.staticArgs, ...mergedRunOptions.args],
@@ -97,13 +91,12 @@ export function createBinTester<TProject extends BinTesterProject>(
   }
 
   async function setupProject() {
-    if ('createProject' in mergedOptions) {
-      project = await mergedOptions.createProject();
-    } else {
-      project = new mergedOptions.projectConstructor();
+    project =
+      'createProject' in mergedOptions
+        ? await mergedOptions.createProject()
+        : (new BinTesterProject() as TProject);
 
-      await project.write();
-    }
+    await project.write();
 
     return project;
   }
