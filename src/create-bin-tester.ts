@@ -30,7 +30,7 @@ interface RunBin {
   /**
    * A runBin implementation that takes no parameters.
    *
-   * @return {*}  {execa.ExecaChildProcess<string>}
+   * @returns {*}  {execa.ExecaChildProcess<string>}
    * @memberof RunBin
    */
   (): execa.ExecaChildProcess<string>;
@@ -38,7 +38,7 @@ interface RunBin {
    * A runBin implementation that takes varargs.
    *
    * @param {...RunBinArgs} args
-   * @return {*}  {execa.ExecaChildProcess<string>}
+   * @returns {*}  {execa.ExecaChildProcess<string>}
    * @memberof RunBin
    */
   (...args: RunBinArgs): execa.ExecaChildProcess<string>;
@@ -70,6 +70,12 @@ const DEFAULT_BIN_TESTER_OPTIONS = {
   projectConstructor: BinTesterProject,
 };
 
+/**
+ * Parses the arguments provided to runBin
+ *
+ * @param {RunBinArgs} args - The arguments passed to runBin.
+ * @returns {RunOptions} Returns an object with args and execaOptions.
+ */
 function parseArgs(args: RunBinArgs): RunOptions {
   if (args.length > 0 && typeof args[args.length - 1] === 'object') {
     const execaOptions = args.pop();
@@ -88,8 +94,9 @@ function parseArgs(args: RunBinArgs): RunOptions {
 /**
  * Creates the bin tester API functions to use within tests.
  *
- * @param options - An object of bin tester options
- * @returns - A project instance.
+ * @typedef TProject - The type of BinTesterProject used.
+ * @param {BinTesterOptions<TProject>} options - An object of bin tester options
+ * @returns {CreateBinTesterResult<TProject>} - A project instance.
  */
 export function createBinTester<TProject extends BinTesterProject>(
   options: BinTesterOptions<TProject>
@@ -101,6 +108,10 @@ export function createBinTester<TProject extends BinTesterProject>(
     ...options,
   } as Required<BinTesterOptions<TProject>>;
 
+  /**
+   * @param {...RunBinArgs} args - Arguments or execa options.
+   * @returns {execa.ExecaChildProcess<string>} An instance of execa's child process.
+   */
   function runBin(...args: RunBinArgs): execa.ExecaChildProcess<string> {
     const mergedRunOptions = parseArgs(args);
 
@@ -115,6 +126,9 @@ export function createBinTester<TProject extends BinTesterProject>(
     );
   }
 
+  /**
+   * Sets up the specified project for use within tests.
+   */
   async function setupProject() {
     project =
       'createProject' in mergedOptions
@@ -126,6 +140,9 @@ export function createBinTester<TProject extends BinTesterProject>(
     return project;
   }
 
+  /**
+   * Sets up a tmp directory for use within tests.
+   */
   async function setupTmpDir() {
     if (typeof project === 'undefined') {
       await setupProject();
@@ -134,6 +151,9 @@ export function createBinTester<TProject extends BinTesterProject>(
     return project.baseDir;
   }
 
+  /**
+   * Tears the project down, ensuring the tmp directory is removed. Shoud be paired with setupProject.
+   */
   function teardownProject() {
     project.dispose();
   }

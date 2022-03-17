@@ -5,6 +5,7 @@ module.exports = {
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:node/recommended',
+    'plugin:jsdoc/recommended',
     'plugin:unicorn/recommended',
     'prettier',
   ],
@@ -37,7 +38,6 @@ module.exports = {
         allowModules: ['vite', 'vitest'],
       },
     ],
-    'jsdoc/syntax': 'warn',
   },
   overrides: [
     {

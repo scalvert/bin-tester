@@ -11,9 +11,9 @@ export default class BinTesterProject extends Project {
   /**
    * Constructs an instance of a BinTesterProject.
    *
-   * @param name - The name of the project. Used within the package.json as the name property.
-   * @param version - The version of the project. Used within the package.json as the version property.
-   * @param cb - An optional callback for additional setup steps after the project is constructed.
+   * @param {string} name - The name of the project. Used within the package.json as the name property.
+   * @param {string} version - The version of the project. Used within the package.json as the version property.
+   * @param {(project: Project) => void} cb - An optional callback for additional setup steps after the project is constructed.
    */
   constructor(name = 'fake-project', version?: string, cb?: (project: Project) => void) {
     super(name, version, cb);
@@ -27,9 +27,10 @@ export default class BinTesterProject extends Project {
 
   /**
    * Runs `git init` inside a project.
+   *
    * @returns {*} {execa.ExecaChildProcess<string>}
    */
-  gitInit() {
+  gitInit(): execa.ExecaChildProcess<string> {
     return execa(`git init -q ${this.baseDir}`);
   }
 
@@ -47,7 +48,7 @@ export default class BinTesterProject extends Project {
   /**
    * Writes a directory struture in the project directory.
    *
-   * @param dirJSON - A JSON object representing the directory structure to create.
+   * @param {fixturify.DirJSON} dirJSON - A JSON object representing the directory structure to create.
    * @returns {*} {Promise<void>}
    */
   writeJSON(dirJSON: fixturify.DirJSON): Promise<void> {
