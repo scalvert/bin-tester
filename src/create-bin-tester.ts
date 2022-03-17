@@ -27,14 +27,39 @@ interface RunOptions {
 }
 
 interface RunBin {
+  /**
+   * A runBin implementation that takes no parameters.
+   *
+   * @return {*}  {execa.ExecaChildProcess<string>}
+   * @memberof RunBin
+   */
   (): execa.ExecaChildProcess<string>;
+  /**
+   * A runBin implementation that takes varargs.
+   *
+   * @param {...RunBinArgs} args
+   * @return {*}  {execa.ExecaChildProcess<string>}
+   * @memberof RunBin
+   */
   (...args: RunBinArgs): execa.ExecaChildProcess<string>;
 }
 
 interface CreateBinTesterResult<TProject extends BinTesterProject> {
+  /**
+   * Runs the configured bin function via execa.
+   */
   runBin: RunBin;
+  /**
+   * Sets up the specified project for use within tests.
+   */
   setupProject: () => Promise<TProject>;
+  /**
+   * Sets up a tmp directory for use within tests.
+   */
   setupTmpDir: () => Promise<string>;
+  /**
+   * Tears the project down, ensuring the tmp directory is removed. Shoud be paired with setupProject.
+   */
   teardownProject: () => void;
 }
 

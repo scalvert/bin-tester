@@ -8,6 +8,13 @@ const ROOT = process.cwd();
 export default class BinTesterProject extends Project {
   private _dirChanged = false;
 
+  /**
+   * Constructs an instance of a BinTesterProject.
+   *
+   * @param name - The name of the project. Used within the package.json as the name property.
+   * @param version - The version of the project. Used within the package.json as the version property.
+   * @param cb - An optional callback for additional setup steps after the project is constructed.
+   */
   constructor(name = 'fake-project', version?: string, cb?: (project: Project) => void) {
     super(name, version, cb);
 
@@ -18,11 +25,18 @@ export default class BinTesterProject extends Project {
     });
   }
 
+  /**
+   * Runs `git init` inside a project.
+   * @returns {*} {execa.ExecaChildProcess<string>}
+   */
   gitInit() {
     return execa(`git init -q ${this.baseDir}`);
   }
 
-  async chdir() {
+  /**
+   * Changes a directory from inside the project.
+   */
+  async chdir(): Promise<void> {
     this._dirChanged = true;
 
     await this.write();
@@ -30,13 +44,24 @@ export default class BinTesterProject extends Project {
     process.chdir(this.baseDir);
   }
 
-  writeJSON(dirJSON: fixturify.DirJSON) {
+  /**
+   * Writes a directory struture in the project directory.
+   *
+   * @param dirJSON - A JSON object representing the directory structure to create.
+   * @returns {*} {Promise<void>}
+   */
+  writeJSON(dirJSON: fixturify.DirJSON): Promise<void> {
     this.files = deepmerge(this.files, dirJSON);
 
     return this.write();
   }
 
-  dispose() {
+  /**
+   * Correctly disposes of the project, observing when the directory has been changed.
+   *
+   * @returns {void}
+   */
+  dispose(): void {
     if (this._dirChanged) {
       process.chdir(ROOT);
     }

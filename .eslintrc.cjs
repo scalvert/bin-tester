@@ -1,6 +1,6 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'prettier', 'tsdoc'],
+  plugins: ['@typescript-eslint', 'prettier', 'jsdoc'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
@@ -37,7 +37,7 @@ module.exports = {
         allowModules: ['vite', 'vitest'],
       },
     ],
-    'tsdoc/syntax': 'warn',
+    'jsdoc/syntax': 'warn',
   },
   overrides: [
     {
