@@ -1,17 +1,14 @@
 import execa from 'execa';
 import fixturify from 'fixturify';
 import { Project } from 'fixturify-project';
+import deepmerge from 'deepmerge';
 
 const ROOT = process.cwd();
 
 export default class BinTesterProject extends Project {
   private _dirChanged = false;
 
-  constructor(
-    name = 'fake-project',
-    version?: string,
-    cb?: (project: Project) => void
-  ) {
+  constructor(name = 'fake-project', version?: string, cb?: (project: Project) => void) {
     super(name, version, cb);
 
     this.pkg = Object.assign({}, this.pkg, {
@@ -25,19 +22,18 @@ export default class BinTesterProject extends Project {
     return execa(`git init -q ${this.baseDir}`);
   }
 
-  chdir() {
+  async chdir() {
     this._dirChanged = true;
+
+    await this.write();
 
     process.chdir(this.baseDir);
   }
 
   writeJSON(dirJSON: fixturify.DirJSON) {
-    this.files = {
-      ...this.files,
-      ...dirJSON
-    };
+    this.files = deepmerge(this.files, dirJSON);
 
-    return super.write();
+    return this.write();
   }
 
   dispose() {

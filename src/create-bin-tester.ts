@@ -14,35 +14,56 @@ interface BinTesterOptions<TProject> {
    * An optional class to use to create the project
    */
   projectConstructor?: Constructor<TProject>;
+  /**
+   * An optional function to use to create the project.
+   */
+  createProject?: (project?: TProject) => Promise<TProject>;
 }
 
 interface RunOptions {
   /**
    * Arguments to provide to the bin script.
    */
-  args?: string[];
+  args: string[];
   /**
    * Options to provide to execa. @see https://github.com/sindresorhus/execa#options
    */
-  execaOptions?: execa.Options<string>;
+  execaOptions: execa.Options<string>;
+}
+
+interface RunBin {
+  (): execa.ExecaChildProcess<string>;
+  (...args: RunBinArgs): execa.ExecaChildProcess<string>;
 }
 
 interface CreateBinTesterResult<TProject extends BinTesterProject> {
-  runBin: (runOptions?: RunOptions) => execa.ExecaChildProcess<string>;
+  runBin: RunBin;
   setupProject: () => Promise<TProject>;
   setupTmpDir: () => Promise<string>;
   teardownProject: () => void;
 }
+
+type RunBinArgs = [...binArgs: string[], execaOptions: execa.Options<string>];
 
 const DEFAULT_BIN_TESTER_OPTIONS = {
   staticArgs: [],
   projectConstructor: BinTesterProject,
 };
 
-const DEFAULT_RUN_OPTIONS = {
-  args: [],
-  execaOptions: {},
-};
+function parseArgs(args: RunBinArgs): RunOptions {
+  if (args.length > 0 && typeof args[args.length - 1] === 'object') {
+    const execaOptions = args.pop();
+    return {
+      args,
+      execaOptions,
+    } as RunOptions;
+  } else {
+    return {
+      args,
+      execaOptions: {},
+    } as RunOptions;
+  }
+}
 
 /**
  * Creates the bin tester API functions to use within tests.
@@ -60,12 +81,10 @@ export function createBinTester<TProject extends BinTesterProject>(
     ...options,
   } as Required<BinTesterOptions<TProject>>;
 
-  function runBin(runOptions: RunOptions = {}) {
-    const mergedRunOptions = {
-      ...DEFAULT_RUN_OPTIONS,
-      ...runOptions
-    }
+  function runBin(...args: RunBinArgs): execa.ExecaChildProcess<string> {
+    const mergedRunOptions = parseArgs(args);
 
+    console.log(mergedRunOptions.execaOptions);
     return execa(
       process.execPath,
       [mergedOptions.binPath, ...mergedOptions.staticArgs, ...mergedRunOptions.args],
@@ -78,9 +97,13 @@ export function createBinTester<TProject extends BinTesterProject>(
   }
 
   async function setupProject() {
-    project = new mergedOptions.projectConstructor();
+    if ('createProject' in mergedOptions) {
+      project = await mergedOptions.createProject();
+    } else {
+      project = new mergedOptions.projectConstructor();
 
-    await project.write();
+      await project.write();
+    }
 
     return project;
   }
