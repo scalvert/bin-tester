@@ -13,7 +13,7 @@ export default class BinTesterProject extends Project {
    *
    * @param {string} name - The name of the project. Used within the package.json as the name property.
    * @param {string} version - The version of the project. Used within the package.json as the version property.
-   * @param {(project: Project) => void} cb - An optional callback for additional setup steps after the project is constructed.
+   * @param {Function} cb - An optional callback for additional setup steps after the project is constructed.
    */
   constructor(name = 'fake-project', version?: string, cb?: (project: Project) => void) {
     super(name, version, cb);

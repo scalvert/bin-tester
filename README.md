@@ -69,31 +69,124 @@ describe('Some tests', () => {
 
 ## API
 
-```ts
-class BinTesterProject extends Project {
-    private _dirChanged;
-    constructor(name: string, version?: string, cb?: (project: Project) => void);
-    gitInit(): execa.ExecaChildProcess<string>;
-    chdir(): void;
-    dispose(): void;
-}
+<!--DOCS_START-->
+## Classes
 
-interface BinTesterOptions {
-    binPath: string;
-    projectConstructor?: any;
-}
+<dl>
+<dt><a href="#BinTesterProject">BinTesterProject</a></dt>
+<dd></dd>
+</dl>
 
-interface RunOptions {
-    args?: string[];
-    execaOptions?: execa.Options<string>;
-}
+## Functions
 
-interface createBinTesterResult<TProject extends BinTesterProject> {
-    runBin: (runOptions?: RunOptions) => execa.ExecaChildProcess<string>;
-    setupProject: () => Promise<TProject>;
-    setupTmpDir: () => Promise<string>;
-    teardownProject: () => void;
-}
+<dl>
+<dt><a href="#createBinTester">createBinTester(options)</a> ⇒ <code>CreateBinTesterResult.&lt;TProject&gt;</code></dt>
+<dd><p>Creates the bin tester API functions to use within tests.</p></dd>
+</dl>
 
-function createBinTester<TProject extends BinTesterProject>(options: BinTesterOptions): createBinTesterResult<TProject>;
-```
+<a name="BinTesterProject"></a>
+
+## BinTesterProject
+**Kind**: global class  
+
+* [BinTesterProject](#BinTesterProject)
+    * [new BinTesterProject(name, version, cb)](#new_BinTesterProject_new)
+    * [.gitInit()](#BinTesterProject+gitInit) ⇒ <code>\*</code>
+    * [.chdir()](#BinTesterProject+chdir)
+    * [.writeJSON(dirJSON)](#BinTesterProject+writeJSON) ⇒ <code>\*</code>
+    * [.dispose()](#BinTesterProject+dispose) ⇒ <code>void</code>
+
+<a name="new_BinTesterProject_new"></a>
+
+### new BinTesterProject(name, version, cb)
+<p>Constructs an instance of a BinTesterProject.</p>
+
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| name | <code>string</code> | <code>&quot;fake-project&quot;</code> | <p>The name of the project. Used within the package.json as the name property.</p> |
+| version | <code>string</code> |  | <p>The version of the project. Used within the package.json as the version property.</p> |
+| cb | <code>function</code> |  | <p>An optional callback for additional setup steps after the project is constructed.</p> |
+
+<a name="BinTesterProject+gitInit"></a>
+
+### binTesterProject.gitInit() ⇒ <code>\*</code>
+<p>Runs <code>git init</code> inside a project.</p>
+
+**Kind**: instance method of [<code>BinTesterProject</code>](#BinTesterProject)  
+**Returns**: <code>\*</code> - <p>{execa.ExecaChildProcess<string>}</p>  
+<a name="BinTesterProject+chdir"></a>
+
+### binTesterProject.chdir()
+<p>Changes a directory from inside the project.</p>
+
+**Kind**: instance method of [<code>BinTesterProject</code>](#BinTesterProject)  
+<a name="BinTesterProject+writeJSON"></a>
+
+### binTesterProject.writeJSON(dirJSON) ⇒ <code>\*</code>
+<p>Writes a directory struture in the project directory.</p>
+
+**Kind**: instance method of [<code>BinTesterProject</code>](#BinTesterProject)  
+**Returns**: <code>\*</code> - <p>{Promise<void>}</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| dirJSON | <code>fixturify.DirJSON</code> | <p>A JSON object representing the directory structure to create.</p> |
+
+<a name="BinTesterProject+dispose"></a>
+
+### binTesterProject.dispose() ⇒ <code>void</code>
+<p>Correctly disposes of the project, observing when the directory has been changed.</p>
+
+**Kind**: instance method of [<code>BinTesterProject</code>](#BinTesterProject)  
+<a name="createBinTester"></a>
+
+## createBinTester(options) ⇒ <code>CreateBinTesterResult.&lt;TProject&gt;</code>
+<p>Creates the bin tester API functions to use within tests.</p>
+
+**Kind**: global function  
+**Returns**: <code>CreateBinTesterResult.&lt;TProject&gt;</code> - <ul>
+<li>A project instance.</li>
+</ul>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | <code>BinTesterOptions.&lt;TProject&gt;</code> | <p>An object of bin tester options</p> |
+
+
+* [createBinTester(options)](#createBinTester) ⇒ <code>CreateBinTesterResult.&lt;TProject&gt;</code>
+    * [~runBin(...args)](#createBinTester..runBin) ⇒ <code>execa.ExecaChildProcess.&lt;string&gt;</code>
+    * [~setupProject()](#createBinTester..setupProject)
+    * [~setupTmpDir()](#createBinTester..setupTmpDir)
+    * [~teardownProject()](#createBinTester..teardownProject)
+
+<a name="createBinTester..runBin"></a>
+
+### createBinTester~runBin(...args) ⇒ <code>execa.ExecaChildProcess.&lt;string&gt;</code>
+**Kind**: inner method of [<code>createBinTester</code>](#createBinTester)  
+**Returns**: <code>execa.ExecaChildProcess.&lt;string&gt;</code> - <p>An instance of execa's child process.</p>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ...args | <code>RunBinArgs</code> | <p>Arguments or execa options.</p> |
+
+<a name="createBinTester..setupProject"></a>
+
+### createBinTester~setupProject()
+<p>Sets up the specified project for use within tests.</p>
+
+**Kind**: inner method of [<code>createBinTester</code>](#createBinTester)  
+<a name="createBinTester..setupTmpDir"></a>
+
+### createBinTester~setupTmpDir()
+<p>Sets up a tmp directory for use within tests.</p>
+
+**Kind**: inner method of [<code>createBinTester</code>](#createBinTester)  
+<a name="createBinTester..teardownProject"></a>
+
+### createBinTester~teardownProject()
+<p>Tears the project down, ensuring the tmp directory is removed. Shoud be paired with setupProject.</p>
+
+**Kind**: inner method of [<code>createBinTester</code>](#createBinTester)  
+
+<!--DOCS_END-->

@@ -73,6 +73,7 @@ const DEFAULT_BIN_TESTER_OPTIONS = {
 /**
  * Parses the arguments provided to runBin
  *
+ * @private
  * @param {RunBinArgs} args - The arguments passed to runBin.
  * @returns {RunOptions} Returns an object with args and execaOptions.
  */
@@ -94,7 +95,6 @@ function parseArgs(args: RunBinArgs): RunOptions {
 /**
  * Creates the bin tester API functions to use within tests.
  *
- * @typedef TProject - The type of BinTesterProject used.
  * @param {BinTesterOptions<TProject>} options - An object of bin tester options
  * @returns {CreateBinTesterResult<TProject>} - A project instance.
  */

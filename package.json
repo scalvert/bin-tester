@@ -28,7 +28,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts --clean",
-    "docs:generate": "npm run build && readme-api-generator dist/index.js",
+    "docs:generate": "readme-api-generator ./src --ts",
     "lint": "eslint .",
     "prepublishOnly": "npm run build",
     "test": "npm run lint && vitest run",
@@ -44,6 +44,11 @@
     "fixturify-project": "^4.1.0"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.16.7",
+    "@babel/plugin-proposal-object-rest-spread": "^7.17.3",
+    "@babel/plugin-transform-typescript": "^7.16.8",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-typescript": "^7.16.7",
     "@scalvert/readme-api-generator": "^0.1.0",
     "@typescript-eslint/eslint-plugin": "^5.14.0",
     "@typescript-eslint/parser": "^5.14.0",

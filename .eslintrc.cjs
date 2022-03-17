@@ -38,6 +38,7 @@ module.exports = {
         allowModules: ['vite', 'vitest'],
       },
     ],
+    'jsdoc/no-undefined-types': 'off',
   },
   overrides: [
     {
