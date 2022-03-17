@@ -40,7 +40,7 @@ describe('createBinTester', () => {
   test('setupProject should return a custom project', async () => {
     const { setupProject } = createBinTester({
       binPath: './foo',
-      projectConstructor: FakeProject,
+      createProject: () => new FakeProject(),
     });
 
     const project = await setupProject();
@@ -86,11 +86,11 @@ describe('createBinTester', () => {
 
     const project = await setupProject();
 
-    const result = await runBin({
-      args: ['--with', 'some', '--arguments'],
-    });
+    const result = await runBin('--with', 'some', '--arguments');
 
-    expect(result.stdout).toMatchInlineSnapshot('"I am a bin who takes args [ \'--static\', \'true\', \'--with\', \'some\', \'--arguments\' ]"');
+    expect(result.stdout).toMatchInlineSnapshot(
+      "\"I am a bin who takes args [ '--static', 'true', '--with', 'some', '--arguments' ]\""
+    );
 
     teardownProject();
 
@@ -104,11 +104,32 @@ describe('createBinTester', () => {
 
     const project = await setupProject();
 
-    const result = await runBin({
-      args: ['--with', 'some', '--arguments'],
+    const result = await runBin('--with', 'some', '--arguments');
+
+    expect(result.stdout).toMatchInlineSnapshot(
+      "\"I am a bin who takes args [ '--with', 'some', '--arguments' ]\""
+    );
+
+    teardownProject();
+
+    expect(existsSync(project.baseDir)).toEqual(false);
+  });
+
+  test('runBin can run the configured bin script with arguments and execa options', async () => {
+    const { setupProject, teardownProject, runBin } = createBinTester({
+      binPath: fileURLToPath(new URL('fixtures/fake-bin-with-env.js', import.meta.url)),
     });
 
-    expect(result.stdout).toMatchInlineSnapshot('"I am a bin who takes args [ \'--with\', \'some\', \'--arguments\' ]"');
+    const project = await setupProject();
+
+    const result = await runBin('--with', 'some', '--arguments', {
+      env: {
+        BIN_TESTER: true,
+      },
+    });
+
+    expect(result.stderr).toMatchInlineSnapshot('""');
+    expect(result.stdout).toMatchInlineSnapshot('"I am an env var true"');
 
     teardownProject();
 

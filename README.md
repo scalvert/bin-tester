@@ -53,15 +53,14 @@ describe('Some tests', () => {
     expect(result.stdout).toBe('Did some stuff');
   });
 
-  // Write a file with contents to the tmp directory
   test('another test', () => {
-    project.write({
+    // Write a file with contents to the tmp directory
+    await project.writeJSON({
       'some/file.txt': 'some content',
     });
 
-    const result = await runBin({
-      args: ['--path', 'some/file.txt'], // pass some args to the bin that will be used for only this invocation
-    });
+    // pass some args to the bin that will be used for only this invocation
+    const result = await runBin('--path', 'some/file.txt');
 
     expect(result.stdout).toBe('Read "some/file.txt"');
   });
