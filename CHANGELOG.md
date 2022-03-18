@@ -1,3 +1,16 @@
+
+## v0.3.0 (2022-03-18)
+
+#### :boom: Breaking Change
+* [#6](https://github.com/scalvert/bin-tester/pull/6) API improvements and refactoring. ([@scalvert](https://github.com/scalvert))
+
+#### :house: Internal
+* [#7](https://github.com/scalvert/bin-tester/pull/7) Update README generator ([@scalvert](https://github.com/scalvert))
+
+#### Committers: 1
+- Steve Calvert ([@scalvert](https://github.com/scalvert))
+
+
 ## v0.0.5 (2022-03-11)
 
 
