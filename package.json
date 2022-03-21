@@ -40,7 +40,6 @@
     "dist"
   ],
   "dependencies": {
-    "@types/debug": "^4.1.7",
     "debug": "^4.3.4",
     "deepmerge": "^4.2.2",
     "execa": "^5.1.1",
@@ -53,6 +52,7 @@
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
     "@scalvert/readme-api-generator": "^0.2.0",
+    "@types/debug": "^4.1.7",
     "@typescript-eslint/eslint-plugin": "^5.14.0",
     "@typescript-eslint/parser": "^5.14.0",
     "eslint": "^8.10.0",
