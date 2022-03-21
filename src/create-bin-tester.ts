@@ -1,4 +1,5 @@
 import execa from 'execa';
+import createDebug from 'debug';
 import BinTesterProject from './project';
 interface BinTesterOptions<TProject> {
   /**
@@ -65,6 +66,8 @@ interface CreateBinTesterResult<TProject extends BinTesterProject> {
 
 type RunBinArgs = [...binArgs: string[], execaOptions: execa.Options<string>];
 
+const debug = createDebug('bin-tester');
+
 const DEFAULT_BIN_TESTER_OPTIONS = {
   staticArgs: [],
   projectConstructor: BinTesterProject,
@@ -108,22 +111,29 @@ export function createBinTester<TProject extends BinTesterProject>(
     ...options,
   } as Required<BinTesterOptions<TProject>>;
 
+  debug('createBinTester options %O', mergedOptions);
+
   /**
    * @param {...RunBinArgs} args - Arguments or execa options.
    * @returns {execa.ExecaChildProcess<string>} An instance of execa's child process.
    */
   function runBin(...args: RunBinArgs): execa.ExecaChildProcess<string> {
     const mergedRunOptions = parseArgs(args);
+    const execaArguments = [
+      mergedOptions.binPath,
+      ...mergedOptions.staticArgs,
+      ...mergedRunOptions.args,
+    ];
 
-    return execa(
-      process.execPath,
-      [mergedOptions.binPath, ...mergedOptions.staticArgs, ...mergedRunOptions.args],
-      {
-        reject: false,
-        cwd: project.baseDir,
-        ...mergedRunOptions.execaOptions,
-      }
-    );
+    debug('running bin script in %s', project.baseDir);
+    debug('runBin execa arguments %O', execaArguments);
+    debug('runBin execa options %O', mergedRunOptions.execaOptions);
+
+    return execa(process.execPath, execaArguments, {
+      reject: false,
+      cwd: project.baseDir,
+      ...mergedRunOptions.execaOptions,
+    });
   }
 
   /**
@@ -132,7 +142,7 @@ export function createBinTester<TProject extends BinTesterProject>(
   async function setupProject() {
     project =
       'createProject' in mergedOptions
-        ? await mergedOptions.createProject()
+        ? mergedOptions.createProject()
         : (new BinTesterProject() as TProject);
 
     await project.write();

@@ -30,6 +30,7 @@
     "build": "tsup src/index.ts --format cjs,esm --dts --clean",
     "docs:generate": "readme-api-generator ./src --ts",
     "lint": "eslint .",
+    "prepare": "npm run build",
     "prepublishOnly": "npm run build",
     "test": "npm run lint && vitest run",
     "test:watch": "vitest",
@@ -39,6 +40,8 @@
     "dist"
   ],
   "dependencies": {
+    "@types/debug": "^4.1.7",
+    "debug": "^4.3.4",
     "deepmerge": "^4.2.2",
     "execa": "^5.1.1",
     "fixturify-project": "^4.1.0"
