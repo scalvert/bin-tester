@@ -51,7 +51,7 @@ export default class BinTesterProject extends Project {
    * @param {fixturify.DirJSON} dirJSON - A JSON object representing the directory structure to create.
    * @returns {*} {Promise<void>}
    */
-  writeJSON(dirJSON: fixturify.DirJSON): Promise<void> {
+  writeDirJSON(dirJSON: fixturify.DirJSON): Promise<void> {
     this.files = deepmerge(this.files, dirJSON);
 
     return this.write();

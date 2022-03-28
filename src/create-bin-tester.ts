@@ -12,7 +12,7 @@ interface BinTesterOptions<TProject> {
   /**
    * An optional function to use to create the project. Use this if you want to provide a custom implementation of a BinTesterProject.
    */
-  createProject?: () => TProject;
+  createProject?: () => Promise<TProject>;
 }
 
 interface RunOptions {
