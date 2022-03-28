@@ -47,15 +47,15 @@ describe('Some tests', () => {
   });
 
   // Run the bin and do something with the result
-  test('a test', () => {
+  test('a test', async () => {
     const result = await runBin();
 
     expect(result.stdout).toBe('Did some stuff');
   });
 
-  test('another test', () => {
+  test('another test', async () => {
     // Write a file with contents to the tmp directory
-    await project.writeJSON({
+    await project.writeDirJSON({
       'some/file.txt': 'some content',
     });
 
@@ -93,7 +93,7 @@ describe('Some tests', () => {
     * [new BinTesterProject(name, version, cb)](#new_BinTesterProject_new)
     * [.gitInit()](#BinTesterProject+gitInit) ⇒ <code>\*</code>
     * [.chdir()](#BinTesterProject+chdir)
-    * [.writeJSON(dirJSON)](#BinTesterProject+writeJSON) ⇒ <code>\*</code>
+    * [.writeDirJSON(dirJSON)](#BinTesterProject+writeDirJSON) ⇒ <code>\*</code>
     * [.dispose()](#BinTesterProject+dispose) ⇒ <code>void</code>
 
 <a name="new_BinTesterProject_new"></a>
@@ -121,9 +121,9 @@ describe('Some tests', () => {
 <p>Changes a directory from inside the project.</p>
 
 **Kind**: instance method of [<code>BinTesterProject</code>](#BinTesterProject)  
-<a name="BinTesterProject+writeJSON"></a>
+<a name="BinTesterProject+writeDirJSON"></a>
 
-### binTesterProject.writeJSON(dirJSON) ⇒ <code>\*</code>
+### binTesterProject.writeDirJSON(dirJSON) ⇒ <code>\*</code>
 <p>Writes a directory struture in the project directory.</p>
 
 **Kind**: instance method of [<code>BinTesterProject</code>](#BinTesterProject)  
