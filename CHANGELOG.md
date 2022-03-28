@@ -1,4 +1,14 @@
 
+
+## v1.0.0 (2022-03-28)
+
+#### :boom: Breaking Change
+* [#16](https://github.com/scalvert/bin-tester/pull/16) Update type for createProject to be async ([@scalvert](https://github.com/scalvert))
+
+#### Committers: 1
+- Steve Calvert ([@scalvert](https://github.com/scalvert))
+
+
 ## v0.3.0 (2022-03-18)
 
 #### :boom: Breaking Change
