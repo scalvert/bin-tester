@@ -67,7 +67,6 @@ type RunBinArgs = [...binArgs: string[], execaOptions: execa.Options<string>];
 
 const DEFAULT_BIN_TESTER_OPTIONS = {
   staticArgs: [],
-  projectConstructor: BinTesterProject,
 };
 
 /**
