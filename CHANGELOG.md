@@ -1,5 +1,18 @@
 
 
+
+## v2.0.0 (2022-04-18)
+
+#### :boom: Breaking Change
+* [#37](https://github.com/scalvert/bin-tester/pull/37) Upgrades fixturify-project to v5.x ([@scalvert](https://github.com/scalvert))
+
+#### :bug: Bug Fix
+* [#29](https://github.com/scalvert/bin-tester/pull/29) Removes unused option (was deprecated before 1.0.0) ([@scalvert](https://github.com/scalvert))
+
+#### Committers: 1
+- Steve Calvert ([@scalvert](https://github.com/scalvert))
+
+
 ## v1.0.0 (2022-03-28)
 
 #### :boom: Breaking Change
