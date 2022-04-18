@@ -31,7 +31,8 @@
     "docs:generate": "readme-api-generator ./src --ts",
     "lint": "eslint .",
     "prepublishOnly": "npm run build",
-    "test": "npm run lint && vitest run",
+    "test": "npm run lint && npm run test:vitest",
+    "test:vitest": "vitest run",
     "test:watch": "vitest",
     "watch": "npm run build -- --watch src"
   },
@@ -39,9 +40,8 @@
     "dist"
   ],
   "dependencies": {
-    "deepmerge": "^4.2.2",
     "execa": "^5.1.1",
-    "fixturify-project": "^4.1.0"
+    "fixturify-project": "^5.0.2"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.16.7",
@@ -49,7 +49,7 @@
     "@babel/plugin-transform-typescript": "^7.16.8",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
-    "@scalvert/readme-api-generator": "^0.2.0",
+    "@scalvert/readme-api-generator": "^0.2.4",
     "@typescript-eslint/eslint-plugin": "^5.14.0",
     "@typescript-eslint/parser": "^5.14.0",
     "eslint": "^8.10.0",
@@ -66,7 +66,7 @@
     "type-fest": "^2.12.0",
     "typescript": "^4.6.2",
     "vite": "^2.8.6",
-    "vitest": "^0.6.0"
+    "vitest": "^0.9.3"
   },
   "engines": {
     "node": ">=14"

@@ -93,7 +93,6 @@ describe('Some tests', () => {
     * [new BinTesterProject(name, version, cb)](#new_BinTesterProject_new)
     * [.gitInit()](#BinTesterProject+gitInit) ⇒ <code>\*</code>
     * [.chdir()](#BinTesterProject+chdir)
-    * [.writeDirJSON(dirJSON)](#BinTesterProject+writeDirJSON) ⇒ <code>\*</code>
     * [.dispose()](#BinTesterProject+dispose) ⇒ <code>void</code>
 
 <a name="new_BinTesterProject_new"></a>
@@ -121,18 +120,6 @@ describe('Some tests', () => {
 <p>Changes a directory from inside the project.</p>
 
 **Kind**: instance method of [<code>BinTesterProject</code>](#BinTesterProject)  
-<a name="BinTesterProject+writeDirJSON"></a>
-
-### binTesterProject.writeDirJSON(dirJSON) ⇒ <code>\*</code>
-<p>Writes a directory struture in the project directory.</p>
-
-**Kind**: instance method of [<code>BinTesterProject</code>](#BinTesterProject)  
-**Returns**: <code>\*</code> - <p>{Promise<void>}</p>  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| dirJSON | <code>fixturify.DirJSON</code> | <p>A JSON object representing the directory structure to create.</p> |
-
 <a name="BinTesterProject+dispose"></a>
 
 ### binTesterProject.dispose() ⇒ <code>void</code>

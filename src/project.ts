@@ -1,7 +1,5 @@
 import execa from 'execa';
-import fixturify from 'fixturify';
 import { Project } from 'fixturify-project';
-import deepmerge from 'deepmerge';
 
 const ROOT = process.cwd();
 
@@ -43,18 +41,6 @@ export default class BinTesterProject extends Project {
     await this.write();
 
     process.chdir(this.baseDir);
-  }
-
-  /**
-   * Writes a directory struture in the project directory.
-   *
-   * @param {fixturify.DirJSON} dirJSON - A JSON object representing the directory structure to create.
-   * @returns {*} {Promise<void>}
-   */
-  writeDirJSON(dirJSON: fixturify.DirJSON): Promise<void> {
-    this.files = deepmerge(this.files, dirJSON);
-
-    return this.write();
   }
 
   /**
