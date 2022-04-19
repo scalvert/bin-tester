@@ -4,7 +4,7 @@ interface BinTesterOptions<TProject> {
   /**
    * The absolute path to the bin to invoke
    */
-  binPath: string;
+  binPath: string | (<TProject extends BinTesterProject>(project: TProject) => string);
   /**
    * An array of static arguments that will be used every time when running the bin
    */
@@ -113,10 +113,14 @@ export function createBinTester<TProject extends BinTesterProject>(
    */
   function runBin(...args: RunBinArgs): execa.ExecaChildProcess<string> {
     const mergedRunOptions = parseArgs(args);
+    const binPath =
+      typeof mergedOptions.binPath === 'function'
+        ? mergedOptions.binPath(project)
+        : mergedOptions.binPath;
 
     return execa(
       process.execPath,
-      [mergedOptions.binPath, ...mergedOptions.staticArgs, ...mergedRunOptions.args],
+      [binPath, ...mergedOptions.staticArgs, ...mergedRunOptions.args],
       {
         reject: false,
         cwd: project.baseDir,
