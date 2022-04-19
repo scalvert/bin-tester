@@ -78,6 +78,25 @@ describe('createBinTester', () => {
     expect(existsSync(project.baseDir)).toEqual(false);
   });
 
+  test('runBin can run the configured bin script dynamically', async () => {
+    const { setupProject, teardownProject, runBin } = createBinTester({
+      binPath: (p) => {
+        expect(p).toEqual(project);
+        return fileURLToPath(new URL('fixtures/fake-bin.js', import.meta.url));
+      },
+    });
+
+    const project = await setupProject();
+
+    const result = await runBin();
+
+    expect(result.stdout).toMatchInlineSnapshot('"I am a bin who takes args []"');
+
+    teardownProject();
+
+    expect(existsSync(project.baseDir)).toEqual(false);
+  });
+
   test('runBin can run the configured bin script with static arguments', async () => {
     const { setupProject, teardownProject, runBin } = createBinTester({
       binPath: fileURLToPath(new URL('fixtures/fake-bin.js', import.meta.url)),
