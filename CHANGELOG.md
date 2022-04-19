@@ -1,6 +1,17 @@
 
 
 
+
+## v2.1.0 (2022-04-19)
+
+#### :rocket: Enhancement
+* [#41](https://github.com/scalvert/bin-tester/pull/41) Adds support for Node 12 ([@scalvert](https://github.com/scalvert))
+* [#40](https://github.com/scalvert/bin-tester/pull/40) Adds support for supplying a binPath dynamically ([@scalvert](https://github.com/scalvert))
+
+#### Committers: 1
+- Steve Calvert ([@scalvert](https://github.com/scalvert))
+
+
 ## v2.0.0 (2022-04-18)
 
 #### :boom: Breaking Change
