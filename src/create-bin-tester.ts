@@ -35,14 +35,34 @@ interface RunBin {
    */
   (): execa.ExecaChildProcess<string>;
   /**
-   * A runBin implementation that takes varargs.
+   * A runBin implementation that takes string varargs.
    *
    * @param {...RunBinArgs} args
    * @returns {*}  {execa.ExecaChildProcess<string>}
    * @memberof RunBin
    */
-  (...args: RunBinArgs): execa.ExecaChildProcess<string>;
+  (...args: [...binArgs: string[]]): execa.ExecaChildProcess<string>;
+  /**
+   * A runBin implementation that takes an execa.Options<string> object.
+   *
+   * @param {...RunBinArgs} args
+   * @returns {*}  {execa.ExecaChildProcess<string>}
+   * @memberof RunBin
+   */
+  (...args: [execaOptions: execa.Options<string>]): execa.ExecaChildProcess<string>;
+  /**
+   * A runBin implementation that takes string or an execa.Options<string> object varargs.
+   *
+   * @param {...RunBinArgs} args
+   * @returns {*}  {execa.ExecaChildProcess<string>}
+   * @memberof RunBin
+   */
+  (
+    ...args: [...binArgs: string[], execaOptions: execa.Options<string>]
+  ): execa.ExecaChildProcess<string>;
 }
+
+type RunBinArgs = (string | execa.Options<string>)[];
 
 interface CreateBinTesterResult<TProject extends BinTesterProject> {
   /**
@@ -62,8 +82,6 @@ interface CreateBinTesterResult<TProject extends BinTesterProject> {
    */
   teardownProject: () => void;
 }
-
-type RunBinArgs = [...binArgs: string[], execaOptions: execa.Options<string>];
 
 const DEFAULT_BIN_TESTER_OPTIONS = {
   staticArgs: [],
