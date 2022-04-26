@@ -1,6 +1,6 @@
 {
   "name": "@scalvert/bin-tester",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "A test harness to invoke a CLI in a tmp directory",
   "keywords": [
     "cli",

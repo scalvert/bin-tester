@@ -2,6 +2,16 @@
 
 
 
+
+## v2.1.1 (2022-04-26)
+
+#### :bug: Bug Fix
+* [#46](https://github.com/scalvert/bin-tester/pull/46) Fixes runBin TS signature to accommodate optional execa.Options ([@scalvert](https://github.com/scalvert))
+
+#### Committers: 1
+- Steve Calvert ([@scalvert](https://github.com/scalvert))
+
+
 ## v2.1.0 (2022-04-19)
 
 #### :rocket: Enhancement
