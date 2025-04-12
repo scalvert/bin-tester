@@ -29,14 +29,12 @@ interface RunOptions {
 interface RunBin {
   /**
    * A runBin implementation that takes no parameters.
-   *
    * @returns {*}  {execa.ExecaChildProcess<string>}
    * @memberof RunBin
    */
   (): execa.ExecaChildProcess<string>;
   /**
    * A runBin implementation that takes string varargs.
-   *
    * @param {...RunBinArgs} args
    * @returns {*}  {execa.ExecaChildProcess<string>}
    * @memberof RunBin
@@ -44,7 +42,6 @@ interface RunBin {
   (...args: [...binArgs: string[]]): execa.ExecaChildProcess<string>;
   /**
    * A runBin implementation that takes an execa.Options<string> object.
-   *
    * @param {...RunBinArgs} args
    * @returns {*}  {execa.ExecaChildProcess<string>}
    * @memberof RunBin
@@ -52,7 +49,6 @@ interface RunBin {
   (...args: [execaOptions: execa.Options<string>]): execa.ExecaChildProcess<string>;
   /**
    * A runBin implementation that takes string or an execa.Options<string> object varargs.
-   *
    * @param {...RunBinArgs} args
    * @returns {*}  {execa.ExecaChildProcess<string>}
    * @memberof RunBin
@@ -89,7 +85,6 @@ const DEFAULT_BIN_TESTER_OPTIONS = {
 
 /**
  * Parses the arguments provided to runBin
- *
  * @private
  * @param {RunBinArgs} args - The arguments passed to runBin.
  * @returns {RunOptions} Returns an object with args and execaOptions.
@@ -111,7 +106,6 @@ function parseArgs(args: RunBinArgs): RunOptions {
 
 /**
  * Creates the bin tester API functions to use within tests.
- *
  * @param {BinTesterOptions<TProject>} options - An object of bin tester options
  * @returns {CreateBinTesterResult<TProject>} - A project instance.
  */
