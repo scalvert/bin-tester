@@ -8,7 +8,6 @@ export default class BinTesterProject extends Project {
 
   /**
    * Constructs an instance of a BinTesterProject.
-   *
    * @param {string} name - The name of the project. Used within the package.json as the name property.
    * @param {string} version - The version of the project. Used within the package.json as the version property.
    * @param {Function} cb - An optional callback for additional setup steps after the project is constructed.
@@ -25,7 +24,6 @@ export default class BinTesterProject extends Project {
 
   /**
    * Runs `git init` inside a project.
-   *
    * @returns {*} {execa.ExecaChildProcess<string>}
    */
   gitInit(): execa.ExecaChildProcess<string> {
@@ -45,7 +43,6 @@ export default class BinTesterProject extends Project {
 
   /**
    * Correctly disposes of the project, observing when the directory has been changed.
-   *
    * @returns {void}
    */
   dispose(): void {

@@ -33,7 +33,9 @@ export default [
       jsdoc: jsdocPlugin
     },
     rules: {
-      ...jsdocPlugin.configs.recommended.rules
+      ...jsdocPlugin.configs.recommended.rules,
+      'jsdoc/tag-lines': ['warn', 'never'],
+      'jsdoc/require-returns': 'off',
     }
   },
   {
@@ -41,7 +43,9 @@ export default [
       unicorn: unicornPlugin
     },
     rules: {
-      ...unicornPlugin.configs.recommended.rules
+      ...unicornPlugin.configs.recommended.rules,
+      'unicorn/prefer-at': 'off',
+      'unicorn/no-typeof-undefined': 'off',
     }
   },
   prettier,
@@ -57,6 +61,9 @@ export default [
       globals: {
         node: true,
         es6: true,
+        process: true,
+        console: true,
+        URL: true
       },
     },
     files: ['**/*.js', '**/*.ts'],
