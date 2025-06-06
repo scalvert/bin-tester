@@ -74,7 +74,7 @@ interface CreateBinTesterResult<TProject extends BinTesterProject> {
    */
   setupTmpDir: () => Promise<string>;
   /**
-   * Tears the project down, ensuring the tmp directory is removed. Shoud be paired with setupProject.
+   * Tears the project down, ensuring the tmp directory is removed. Should be paired with setupProject.
    */
   teardownProject: () => void;
 }
@@ -167,7 +167,7 @@ export function createBinTester<TProject extends BinTesterProject>(
   }
 
   /**
-   * Tears the project down, ensuring the tmp directory is removed. Shoud be paired with setupProject.
+   * Tears the project down, ensuring the tmp directory is removed. Should be paired with setupProject.
    */
   function teardownProject() {
     project.dispose();
