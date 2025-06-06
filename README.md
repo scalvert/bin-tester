@@ -172,7 +172,7 @@ describe('Some tests', () => {
 <a name="createBinTester..teardownProject"></a>
 
 ### createBinTester~teardownProject()
-<p>Tears the project down, ensuring the tmp directory is removed. Shoud be paired with setupProject.</p>
+<p>Tears the project down, ensuring the tmp directory is removed. Should be paired with setupProject.</p>
 
 **Kind**: inner method of [<code>createBinTester</code>](#createBinTester)  
 
