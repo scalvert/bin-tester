@@ -74,17 +74,17 @@ if (command === 'replay') {
   }
 
   const child = result as import('execa').ExecaChildProcess<string>;
-  
-  try {
-    const p = await child;
-    
-    process.exit(p.exitCode ?? 0);
-  } catch (error) {
-    const err = error as { exitCode?: unknown } | null | undefined;
-    const code = typeof err?.exitCode === 'number' ? (err.exitCode as number) : 1;
-
-    process.exit(code);
+  async function run() {
+    try {
+      const p = await child;
+      process.exit(p.exitCode ?? 0);
+    } catch (error) {
+      const err = error as { exitCode?: unknown } | null | undefined;
+      const code = typeof err?.exitCode === 'number' ? (err.exitCode as number) : 1;
+      process.exit(code);
+    }
   }
+  void run();
 } else {
   cli.showHelp(0);
 }
