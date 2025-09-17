@@ -67,6 +67,126 @@ describe('Some tests', () => {
 });
 ```
 
+## Debugging & Replay
+
+### Recommended: zero-code-change debugging
+
+Use an environment variable in front of your test command. This enables the Node inspector for every `runBin(...)` child process without changing any code.
+
+```bash
+# Watch mode
+BIN_TESTER_DEBUG=attach pnpm test:watch
+
+# One-shot run
+BIN_TESTER_DEBUG=attach pnpm test
+```
+
+Then attach your debugger:
+
+- VS Code: Run “Attach to Node Process” and select the spawned Node process.
+- Chrome DevTools: Open “Open dedicated DevTools for Node” from `chrome://inspect`.
+
+To break on the first line instead of attach-only:
+
+```bash
+BIN_TESTER_DEBUG=1 pnpm test:watch
+# or
+BIN_TESTER_DEBUG=true pnpm test:watch
+```
+
+No code changes are required.
+
+### Stepping into the bin's code (child process)
+
+When debugging is enabled, `@scalvert/bin-tester` starts your bin as a separate Node child process (via `execa`) with inspector flags. Attach your debugger to the child process to step through the bin's code.
+
+- **Separate sessions**: The parent test runner and the child bin are distinct debug sessions. Use your IDE's Auto Attach or attach to the child process explicitly.
+- **VS Code**: Use “Attach to Node Process” or enable Auto Attach. Select the child Node process spawned by your tests.
+- **DevTools**: Use `chrome://inspect` → “Open dedicated DevTools for Node” to attach to the child.
+- **Optional URL**: To see the "Debugger listening on …" URL, inherit stdio (e.g., CLI `--stdio inherit`, or pass `{ stdio: 'inherit' }` to `runBin`).
+
+### Quick start
+
+When you invoke a bin with `runBin(...)`, bin-tester writes a replay artifact into your fixture at `.bin-tester/last-run.json` and prints a hint like:
+
+```text
+Replay with: bin-tester replay '/absolute/path/to/your/fixture/.bin-tester/last-run.json'
+```
+
+You can pass either the fixture directory or the explicit artifact path to `bin-tester`.
+
+### CLI usage (fish)
+
+```bash
+# Re-run the last recorded command
+bin-tester replay '/absolute/path/to/fixture'
+
+# Attach a debugger (does not break on first line)
+bin-tester replay '/absolute/path/to/fixture' --inspect
+
+# Break on first line in the debugger
+bin-tester replay '/absolute/path/to/fixture' --inspect-brk
+
+# Force stdio mode
+bin-tester replay '/absolute/path/to/fixture' --stdio pipe
+
+# Print the command components instead of executing
+bin-tester replay '/absolute/path/to/fixture' --print
+
+# Show details stored in the artifact
+bin-tester info '/absolute/path/to/fixture'
+```
+
+Inspector is enabled with dynamic port selection (`--inspect=0` / `--inspect-brk=0`), so Node will choose a free port. With `--stdio inherit`, Node prints a "Debugger listening on …" URL that you can open in DevTools.
+
+### Environment variables
+
+- `BIN_TESTER_DEBUG`
+  - Values: `attach` → enable inspector attach; any other truthy value → break on first line.
+  - Disabled when `0` or `false` (case-insensitive).
+  - Prefer `runBinDebug(...)` in tests to enable inspector for a single invocation without mutating global state.
+
+- `BIN_TESTER_KEEP_FIXTURE`
+  - When set (and not `0`/`false`), `teardownProject()` preserves the tmp directory. Pass `{ force: true }` to override.
+
+### In-tests debugging
+
+```ts
+import { createBinTester } from '@scalvert/bin-tester';
+
+const { setupProject, runBinDebug } = createBinTester({
+  binPath: 'node_modules/.bin/your-cli',
+});
+
+await setupProject();
+await runBinDebug({});
+```
+
+### Replay programmatic API
+
+```ts
+import { readLastRunInfo, replayLastRun } from '@scalvert/bin-tester/replay';
+
+const info = readLastRunInfo('/absolute/path/to/fixture');
+const printed = replayLastRun('/absolute/path/to/fixture', { printOnly: true, stdio: 'inherit' });
+```
+
+### Artifact format
+
+The replay artifact is written to `<fixture>/.bin-tester/last-run.json`.
+
+```json
+{
+  "nodePath": "/absolute/path/to/node",
+  "binPath": "/absolute/path/to/your-cli.js",
+  "args": ["--flag", "value"],
+  "cwd": "/absolute/fixture/path",
+  "envOverrides": { "BIN_TESTER": "true" },
+  "stdioMode": "inherit",
+  "timestamp": "2025-09-17T12:34:56.789Z"
+}
+```
+
 ## API
 
 <!--DOCS_START-->

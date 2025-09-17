@@ -1,4 +1,6 @@
 import execa from 'execa';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import BinTesterProject from './project';
 interface BinTesterOptions<TProject> {
   /**
@@ -76,7 +78,11 @@ interface CreateBinTesterResult<TProject extends BinTesterProject> {
   /**
    * Tears the project down, ensuring the tmp directory is removed. Should be paired with setupProject.
    */
-  teardownProject: () => void;
+  teardownProject: (options?: { force?: boolean }) => void;
+  /**
+   * Runs the configured bin with Node inspector enabled. Defaults to break on first line.
+   */
+  runBinDebug: RunBin;
 }
 
 const DEFAULT_BIN_TESTER_OPTIONS = {
@@ -130,15 +136,69 @@ export function createBinTester<TProject extends BinTesterProject>(
         ? mergedOptions.binPath(project)
         : mergedOptions.binPath;
 
-    return execa(
+    const debugEnv = process.env.BIN_TESTER_DEBUG;
+    const nodeInspectorArgs: string[] = [];
+    if (debugEnv && String(debugEnv).toLowerCase() !== '0' && String(debugEnv).toLowerCase() !== 'false') {
+      const mode = String(debugEnv).toLowerCase();
+      if (mode === 'attach') {
+        nodeInspectorArgs.push('--inspect=0');
+      } else {
+        nodeInspectorArgs.push('--inspect-brk=0');
+      }
+    }
+
+    const resolvedCwd = (mergedRunOptions.execaOptions as execa.Options<string>).cwd ?? project.baseDir;
+    const stdioMode = mergedRunOptions.execaOptions.stdio === 'inherit' ? 'inherit' : 'pipe';
+
+    const child = execa(
       process.execPath,
-      [binPath, ...mergedOptions.staticArgs, ...mergedRunOptions.args],
+      [...nodeInspectorArgs, binPath, ...mergedOptions.staticArgs, ...mergedRunOptions.args],
       {
         reject: false,
-        cwd: project.baseDir,
+        cwd: resolvedCwd,
         ...mergedRunOptions.execaOptions,
       }
     );
+
+    try {
+      const artifactDir = join(project.baseDir, '.bin-tester');
+      mkdirSync(artifactDir, { recursive: true });
+      const artifactPath = join(artifactDir, 'last-run.json');
+      const envOverrides = Object.fromEntries(
+        Object.entries(mergedRunOptions.execaOptions.env ?? {}).map(([k, v]) => [k, v === undefined ? '' : String(v)])
+      );
+      const artifact = {
+        nodePath: process.execPath,
+        binPath,
+        args: [...mergedOptions.staticArgs, ...mergedRunOptions.args],
+        cwd: resolvedCwd,
+        envOverrides,
+        stdioMode,
+        timestamp: new Date().toISOString(),
+      } as const;
+      writeFileSync(artifactPath, JSON.stringify(artifact, undefined, 2));
+      console.log(`Replay with: bin-tester replay '${artifactPath}'`);
+    } catch {
+      // Swallow persistence errors; they should not fail the run
+    }
+
+    return child;
+  }
+
+  /**
+   * Runs the configured bin with Node inspector enabled. Defaults to break on first line.
+   * @param {...RunBinArgs} args Arguments identical to runBin
+   */
+  function runBinDebug(...args: RunBinArgs): execa.ExecaChildProcess<string> {
+    const previous = process.env.BIN_TESTER_DEBUG;
+    if (!previous) {
+      process.env.BIN_TESTER_DEBUG = 'attach';
+    }
+    const result = runBin(...args);
+    if (!previous) {
+      delete process.env.BIN_TESTER_DEBUG;
+    }
+    return result;
   }
 
   /**
@@ -168,13 +228,22 @@ export function createBinTester<TProject extends BinTesterProject>(
 
   /**
    * Tears the project down, ensuring the tmp directory is removed. Should be paired with setupProject.
+   * @param {object} [options] Optional teardown options.
+   * @param {boolean} [options.force] When true, forces teardown even if BIN_TESTER_KEEP_FIXTURE is set.
    */
-  function teardownProject() {
+  function teardownProject(options?: { force?: boolean }) {
+    const keep = process.env.BIN_TESTER_KEEP_FIXTURE;
+    const shouldKeep = keep && String(keep) !== '0' && String(keep).toLowerCase() !== 'false';
+    if (shouldKeep && !(options && options.force)) {
+      return;
+    }
+
     project.dispose();
   }
 
   return {
     runBin,
+    runBinDebug,
     setupProject,
     teardownProject,
     setupTmpDir,

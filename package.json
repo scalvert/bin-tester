@@ -21,13 +21,22 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./cli": {
+      "import": "./dist/cli.js",
+      "require": "./dist/cli.cjs"
+    },
+    "./replay": {
+      "types": "./dist/replay.d.ts",
+      "import": "./dist/replay.js",
+      "require": "./dist/replay.cjs"
     }
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "build": "tsup src/index.ts src/cli.ts src/replay.ts --format cjs,esm --dts --clean",
     "docs:generate": "readme-api-generator ./src --ts",
     "lint": "eslint .",
     "prepublishOnly": "npm run build",
@@ -39,9 +48,13 @@
   "files": [
     "dist"
   ],
+  "bin": {
+    "bin-tester": "dist/cli.js"
+  },
   "dependencies": {
     "execa": "^5.1.1",
-    "fixturify-project": "^7.1.3"
+    "fixturify-project": "^7.1.3",
+    "meow": "^13.2.0"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.18.6",
@@ -69,7 +82,7 @@
     "vitest": "^3.1.1"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org",

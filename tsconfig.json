@@ -6,7 +6,7 @@
     "sourceMap": true,
     "importHelpers": true,
     "module": "esnext",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "strict": true,
     "target": "es2020",
     "baseUrl": ".",
