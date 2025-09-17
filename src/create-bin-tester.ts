@@ -74,9 +74,15 @@ interface CreateBinTesterResult<TProject extends BinTesterProject> {
    */
   setupTmpDir: () => Promise<string>;
   /**
-   * Tears the project down, ensuring the tmp directory is removed. Should be paired with setupProject.
+   * Tears the project down, ensuring the tmp directory is removed.
+   * Set BIN_TESTER_KEEP_FIXTURE=1 to preserve fixtures for inspection.
    */
   teardownProject: () => void;
+  /**
+   * Runs the configured bin with Node inspector enabled in attach mode (--inspect).
+   * Set BIN_TESTER_DEBUG=break to break on first line instead.
+   */
+  runBinDebug: RunBin;
 }
 
 const DEFAULT_BIN_TESTER_OPTIONS = {
@@ -91,14 +97,15 @@ const DEFAULT_BIN_TESTER_OPTIONS = {
  */
 function parseArgs(args: RunBinArgs): RunOptions {
   if (args.length > 0 && typeof args[args.length - 1] === 'object') {
-    const execaOptions = args.pop();
+    const argsCopy = [...args];
+    const execaOptions = argsCopy.pop();
     return {
-      args,
+      args: argsCopy,
       execaOptions,
     } as RunOptions;
   } else {
     return {
-      args,
+      args: [...args],
       execaOptions: {},
     } as RunOptions;
   }
@@ -130,15 +137,50 @@ export function createBinTester<TProject extends BinTesterProject>(
         ? mergedOptions.binPath(project)
         : mergedOptions.binPath;
 
+    const optionsEnv = mergedRunOptions.execaOptions.env as Record<string, string | undefined> | undefined;
+    const debugEnv = optionsEnv?.BIN_TESTER_DEBUG ?? process.env.BIN_TESTER_DEBUG;
+
+    const nodeInspectorArgs: string[] = [];
+    if (debugEnv && debugEnv !== '0' && debugEnv.toLowerCase() !== 'false') {
+      if (debugEnv.toLowerCase() === 'break') {
+        nodeInspectorArgs.push('--inspect-brk=0');
+      } else {
+        nodeInspectorArgs.push('--inspect=0');
+      }
+      console.log(`[bin-tester] Debugging enabled. Fixture: ${project.baseDir}`);
+    }
+
+    const resolvedCwd = (mergedRunOptions.execaOptions as execa.Options<string>).cwd ?? project.baseDir;
+
     return execa(
       process.execPath,
-      [binPath, ...mergedOptions.staticArgs, ...mergedRunOptions.args],
+      [...nodeInspectorArgs, binPath, ...mergedOptions.staticArgs, ...mergedRunOptions.args],
       {
         reject: false,
-        cwd: project.baseDir,
+        cwd: resolvedCwd,
         ...mergedRunOptions.execaOptions,
       }
     );
+  }
+
+  /**
+   * Runs the configured bin with Node inspector enabled in attach mode (--inspect).
+   * @param {...RunBinArgs} args Arguments identical to runBin
+   */
+  function runBinDebug(...args: RunBinArgs): execa.ExecaChildProcess<string> {
+    const parsedArgs = parseArgs(args);
+    // Pass debug mode through execa env options to avoid race conditions with process.env
+    const debugEnv = process.env.BIN_TESTER_DEBUG || 'attach';
+    parsedArgs.execaOptions = {
+      ...parsedArgs.execaOptions,
+      env: {
+        ...parsedArgs.execaOptions.env,
+        BIN_TESTER_DEBUG: debugEnv,
+      },
+    };
+    // Reconstruct args array with merged options
+    const reconstructedArgs: RunBinArgs = [...parsedArgs.args, parsedArgs.execaOptions];
+    return runBin(...reconstructedArgs);
   }
 
   /**
@@ -168,13 +210,21 @@ export function createBinTester<TProject extends BinTesterProject>(
 
   /**
    * Tears the project down, ensuring the tmp directory is removed. Should be paired with setupProject.
+   * Set BIN_TESTER_KEEP_FIXTURE=1 to preserve fixtures for inspection.
    */
   function teardownProject() {
+    const keepEnv = process.env.BIN_TESTER_KEEP_FIXTURE;
+    if (keepEnv && keepEnv !== '0' && keepEnv.toLowerCase() !== 'false') {
+      console.log(`[bin-tester] Fixture preserved: ${project.baseDir}`);
+      return;
+    }
+
     project.dispose();
   }
 
   return {
     runBin,
+    runBinDebug,
     setupProject,
     teardownProject,
     setupTmpDir,
