@@ -2,6 +2,7 @@ import execa from 'execa';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import BinTesterProject from './project';
+import type { SerializableStdio } from './replay';
 interface BinTesterOptions<TProject> {
   /**
    * The absolute path to the bin to invoke
@@ -80,7 +81,8 @@ interface CreateBinTesterResult<TProject extends BinTesterProject> {
    */
   teardownProject: (options?: { force?: boolean }) => void;
   /**
-   * Runs the configured bin with Node inspector enabled. Defaults to break on first line.
+   * Runs the configured bin with Node inspector enabled in attach mode (--inspect).
+   * Use BIN_TESTER_DEBUG=1 or BIN_TESTER_DEBUG=break to break on first line instead.
    */
   runBinDebug: RunBin;
 }
@@ -136,7 +138,9 @@ export function createBinTester<TProject extends BinTesterProject>(
         ? mergedOptions.binPath(project)
         : mergedOptions.binPath;
 
-    const debugEnv = process.env.BIN_TESTER_DEBUG;
+    // Check both process.env and options.env for debug flag (options.env takes precedence)
+    const optionsEnv = mergedRunOptions.execaOptions.env as Record<string, string | undefined> | undefined;
+    const debugEnv = optionsEnv?.BIN_TESTER_DEBUG ?? process.env.BIN_TESTER_DEBUG;
     const nodeInspectorArgs: string[] = [];
     if (debugEnv && String(debugEnv).toLowerCase() !== '0' && String(debugEnv).toLowerCase() !== 'false') {
       const mode = String(debugEnv).toLowerCase();
@@ -148,7 +152,14 @@ export function createBinTester<TProject extends BinTesterProject>(
     }
 
     const resolvedCwd = (mergedRunOptions.execaOptions as execa.Options<string>).cwd ?? project.baseDir;
-    const stdioMode = mergedRunOptions.execaOptions.stdio === 'inherit' ? 'inherit' : 'pipe';
+    // Normalize stdio to a serializable value for the artifact
+    // Non-serializable values (Stream, number, arrays) fall back to 'pipe'
+    const rawStdio = mergedRunOptions.execaOptions.stdio;
+    const serializableStdioValues: SerializableStdio[] = ['pipe', 'ignore', 'inherit', 'ipc'];
+    const stdioMode: SerializableStdio =
+      typeof rawStdio === 'string' && serializableStdioValues.includes(rawStdio as SerializableStdio)
+        ? (rawStdio as SerializableStdio)
+        : 'pipe';
 
     const child = execa(
       process.execPath,
@@ -177,28 +188,37 @@ export function createBinTester<TProject extends BinTesterProject>(
         timestamp: new Date().toISOString(),
       } as const;
       writeFileSync(artifactPath, JSON.stringify(artifact, undefined, 2));
-      console.log(`Replay with: bin-tester replay '${artifactPath}'`);
-    } catch {
-      // Swallow persistence errors; they should not fail the run
+      // Only log replay hint when BIN_TESTER_DEBUG is set to reduce noise in normal test runs
+      if (debugEnv) {
+        console.log(`Replay with: bin-tester replay '${artifactPath}'`);
+      }
+    } catch (error) {
+      // Log warning but don't fail the run - artifact persistence is optional
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn(`[bin-tester] Warning: Failed to persist run artifact: ${message}`);
     }
 
     return child;
   }
 
   /**
-   * Runs the configured bin with Node inspector enabled. Defaults to break on first line.
+   * Runs the configured bin with Node inspector enabled in attach mode (--inspect).
    * @param {...RunBinArgs} args Arguments identical to runBin
    */
   function runBinDebug(...args: RunBinArgs): execa.ExecaChildProcess<string> {
-    const previous = process.env.BIN_TESTER_DEBUG;
-    if (!previous) {
-      process.env.BIN_TESTER_DEBUG = 'attach';
-    }
-    const result = runBin(...args);
-    if (!previous) {
-      delete process.env.BIN_TESTER_DEBUG;
-    }
-    return result;
+    const parsedArgs = parseArgs(args);
+    // Pass debug mode through execa env options to avoid race conditions with process.env
+    const debugEnv = process.env.BIN_TESTER_DEBUG || 'attach';
+    parsedArgs.execaOptions = {
+      ...parsedArgs.execaOptions,
+      env: {
+        ...parsedArgs.execaOptions.env,
+        BIN_TESTER_DEBUG: debugEnv,
+      },
+    };
+    // Reconstruct args array with merged options
+    const reconstructedArgs: RunBinArgs = [...parsedArgs.args, parsedArgs.execaOptions];
+    return runBin(...reconstructedArgs);
   }
 
   /**

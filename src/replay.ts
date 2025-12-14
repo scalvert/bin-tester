@@ -4,6 +4,12 @@ import { join } from 'node:path';
 import execa from 'execa';
 
 /**
+ * Serializable subset of execa's stdio options for JSON persistence.
+ * Excludes Stream and number which cannot be serialized.
+ */
+export type SerializableStdio = 'pipe' | 'ignore' | 'inherit' | 'ipc';
+
+/**
  * Describes the persisted replay artifact written by bin-tester after a run.
  */
 export interface LastRunArtifact {
@@ -12,7 +18,7 @@ export interface LastRunArtifact {
   args: string[];
   cwd: string;
   envOverrides: Record<string, string>;
-  stdioMode: 'inherit' | 'pipe';
+  stdioMode: SerializableStdio;
   timestamp: string;
 }
 
@@ -21,16 +27,23 @@ export interface LastRunArtifact {
  */
 export interface ReplayOptions {
   inspect?: 'attach' | 'break' | false;
-  stdio?: 'inherit' | 'pipe';
+  stdio?: execa.Options<string>['stdio'];
   printOnly?: boolean;
 }
 
 /**
  * Resolves the artifact path from a directory or an explicit file path.
  * @param {string} inputPath The path to a fixture directory or an artifact file.
+ * @throws {Error} If the path does not exist or is not accessible.
  */
 function resolveArtifactPath(inputPath: string): string {
-  const stats = statSync(inputPath);
+  let stats;
+  try {
+    stats = statSync(inputPath);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Cannot access path "${inputPath}": ${message}`);
+  }
   if (stats.isDirectory()) {
     return join(inputPath, '.bin-tester', 'last-run.json');
   }
@@ -40,11 +53,27 @@ function resolveArtifactPath(inputPath: string): string {
 /**
  * Reads and parses the last-run artifact from disk.
  * @param {string} inputPath The path to a fixture directory or an artifact file.
+ * @throws {Error} If the artifact file cannot be read or contains invalid JSON.
  */
 export function readLastRunInfo(inputPath: string): LastRunArtifact {
   const artifactPath = resolveArtifactPath(inputPath);
-  const raw = readFileSync(artifactPath, 'utf8');
-  const parsed = JSON.parse(raw) as LastRunArtifact;
+
+  let raw: string;
+  try {
+    raw = readFileSync(artifactPath, 'utf8');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Cannot read artifact file "${artifactPath}": ${message}`);
+  }
+
+  let parsed: LastRunArtifact;
+  try {
+    parsed = JSON.parse(raw) as LastRunArtifact;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Invalid JSON in artifact file "${artifactPath}": ${message}`);
+  }
+
   return parsed;
 }
 

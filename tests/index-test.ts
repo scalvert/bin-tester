@@ -266,17 +266,18 @@ describe('createBinTester', () => {
     try {
       process.env.BIN_TESTER_KEEP_FIXTURE = '1';
       await runBin();
+
+      teardownProject();
+
+      // With KEEP_FIXTURE set, the directory should still exist
+      expect(existsSync(project.baseDir)).toEqual(true);
     } finally {
-      // Do nothing
+      // Clean up for real so we don't leak tmp dirs
+      delete process.env.BIN_TESTER_KEEP_FIXTURE;
+      teardownProject({ force: true });
     }
 
-    teardownProject();
-
-    expect(existsSync(project.baseDir)).toEqual(true);
-
-    // Clean up for real so we don't leak tmp dirs
-    delete process.env.BIN_TESTER_KEEP_FIXTURE;
-    // Calling teardown again should remove when KEEP is not set and implementation supports force
-    // In current behavior, we manually dispose via project API in implementation update.
+    // After forced teardown, directory should be gone
+    expect(existsSync(project.baseDir)).toEqual(false);
   });
 });
