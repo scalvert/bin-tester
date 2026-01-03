@@ -4,7 +4,6 @@
 [![npm version](https://badge.fury.io/js/%40scalvert%2Fbin-tester.svg)](https://badge.fury.io/js/%40scalvert%2Fbin-tester)
 [![License](https://img.shields.io/npm/l/@scalvert/bin-tester.svg)](https://github.com/scalvert/bin-tester/blob/master/package.json)
 ![Dependabot](https://badgen.net/badge/icon/dependabot?icon=dependabot&label)
-![Volta Managed](https://img.shields.io/static/v1?label=volta&message=managed&color=yellow&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QAeQC6AMEpK7AhAAAACXBIWXMAAAsSAAALEgHS3X78AAAAB3RJTUUH5AMGFS07qAYEaAAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAFmSURBVDjLY2CgB/g/j0H5/2wGW2xyTAQ1r2DQYOBgm8nwh+EY6TYvZtD7f9rn5e81fAGka17GYPL/esObP+dyj5Cs+edqZsv/V8o//H+z7P+XHarW+NSyoAv8WsFszyKTtoVBM5Tn7/Xys+zf7v76vYrJlPEvAwPjH0YGxp//3jGl/L8LU8+IrPnPUkY3ZomoDQwOpZwMv14zMHy8yMDwh4mB4Q8jA8OTgwz/L299wMDyx4Mp9f9NDAP+bWVwY3jGsJpB3JaDQVCEgYHlLwPDfwYWRqVQJgZmHoZ/+3PPfWP+68Mb/Pw5sqUoLni9ipuRnekrAwMjA8Ofb6K8/PKBF5nU7RX+Hize8Y2DOZTP7+kXogPy1zrH+f/vT/j/Z5nUvGcr5VhJioUf88UC/59L+/97gUgDyVH4YzqXxL8dOs/+zuFLJivd/53HseLPPHZPsjT/nsHi93cqozHZue7rLDYhUvUAADjCgneouzo/AAAAAElFTkSuQmCC&link=https://volta.sh)
 [![Code Style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](#badge)
 
 A test harness for Node.js CLI tools.
@@ -54,16 +53,16 @@ npm add @scalvert/bin-tester --save-dev
 ```ts snippet=create-bin-tester.ts
 const { setupProject, teardownProject, runBin } = createBinTester({
   binPath: './bin/my-cli.js',
-  staticArgs: ['--verbose'],  // args passed to every invocation
+  staticArgs: ['--verbose'], // args passed to every invocation
 });
 ```
 
 **Setup and teardown:**
 
 ```ts snippet=setup-teardown.ts
-const project = await setupProject();  // creates temp directory
+const project = await setupProject(); // creates temp directory
 // ... run tests ...
-teardownProject();  // removes temp directory
+teardownProject(); // removes temp directory
 ```
 
 **Writing fixture files:**
@@ -81,9 +80,9 @@ await project.write();
 ```ts snippet=running-cli.ts
 const result = await runBin('--flag', 'arg');
 
-result.exitCode;  // number
-result.stdout;    // string
-result.stderr;    // string
+result.exitCode; // number
+result.stdout; // string
+result.stderr; // string
 ```
 
 ## Debugging
@@ -98,7 +97,7 @@ BIN_TESTER_DEBUG=break npm test   # break on first line
 Or use `runBinDebug()` programmatically:
 
 ```ts snippet=run-bin-debug.ts
-await runBinDebug('--flag');  // runs with --inspect
+await runBinDebug('--flag'); // runs with --inspect
 ```
 
 For VS Code, add to `.vscode/launch.json`:
@@ -111,7 +110,7 @@ For VS Code, add to `.vscode/launch.json`:
   "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/vitest",
   "runtimeArgs": ["run"],
   "autoAttachChildProcesses": true,
-  "console": "integratedTerminal"
+  "console": "integratedTerminal",
 }
 ```
 
