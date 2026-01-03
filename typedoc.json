@@ -3,7 +3,7 @@
   "entryPoints": ["./src/index.ts"],
   "out": "./docs",
   "name": "@scalvert/bin-tester",
-  "readme": "./README.md",
+  "readme": "none",
   "excludePrivate": true,
   "excludeInternal": true,
   "githubPages": true
