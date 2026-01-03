@@ -7,62 +7,124 @@
 ![Volta Managed](https://img.shields.io/static/v1?label=volta&message=managed&color=yellow&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QAeQC6AMEpK7AhAAAACXBIWXMAAAsSAAALEgHS3X78AAAAB3RJTUUH5AMGFS07qAYEaAAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAFmSURBVDjLY2CgB/g/j0H5/2wGW2xyTAQ1r2DQYOBgm8nwh+EY6TYvZtD7f9rn5e81fAGka17GYPL/esObP+dyj5Cs+edqZsv/V8o//H+z7P+XHarW+NSyoAv8WsFszyKTtoVBM5Tn7/Xys+zf7v76vYrJlPEvAwPjH0YGxp//3jGl/L8LU8+IrPnPUkY3ZomoDQwOpZwMv14zMHy8yMDwh4mB4Q8jA8OTgwz/L299wMDyx4Mp9f9NDAP+bWVwY3jGsJpB3JaDQVCEgYHlLwPDfwYWRqVQJgZmHoZ/+3PPfWP+68Mb/Pw5sqUoLni9ipuRnekrAwMjA8Ofb6K8/PKBF5nU7RX+Hize8Y2DOZTP7+kXogPy1zrH+f/vT/j/Z5nUvGcr5VhJioUf88UC/59L+/97gUgDyVH4YzqXxL8dOs/+zuFLJivd/53HseLPPHZPsjT/nsHi93cqozHZue7rLDYhUvUAADjCgneouzo/AAAAAElFTkSuQmCC&link=https://volta.sh)
 [![Code Style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](#badge)
 
-> Provides a test harness for node CLIs that allow you to run tests against a real project.
+A test harness for Node.js CLI tools. Run your CLI against real temporary projects with isolated fixtures, then assert on the output.
 
-## Install
+## Why?
 
-```shell
+Testing CLI tools is hard. You need to:
+- Create realistic project fixtures for each test
+- Run your CLI as a subprocess against those fixtures
+- Capture stdout/stderr and exit codes
+- Clean up temp directories after each test
+- Debug failures when something goes wrong
+
+**bin-tester** handles all of this, letting you focus on writing tests.
+
+## Quickstart
+
+```bash
 npm add @scalvert/bin-tester --save-dev
-
-# or
-
-yarn add @scalvert/bin-tester --dev
 ```
 
-## Usage
-
-`@scalvert/bin-tester` uses two libraries to provide the test harness:
-
-- [`fixturify-project`](https://github.com/stefanpenner/node-fixturify-project): Allows you to dynamically create test fixtures using real directories and files in a tmp directory
-- [`execa`](https://github.com/sindresorhus/execa): A better replacement for `child_process.exec`
-
-It combines the above and provides an API for running a binary with a set of arguments against a real project structure, thus mimicking testing a real environment.
-
-```js
+```ts
 import { createBinTester } from '@scalvert/bin-tester';
+import { describe, test, expect, beforeEach, afterEach } from 'vitest';
 
-describe('Some tests', () => {
-  let project;
-  let { setupProject, teardownProject, runBin } = createBinTester({
-    binPath: 'node_modules/.bin/someBin',
-    staticArgs: ['--some-arg'], // pass some args to the bin that will be used for each invocation
+describe('my-cli', () => {
+  const { setupProject, teardownProject, runBin } = createBinTester({
+    binPath: './bin/my-cli.js',
   });
 
-  beforeEach(() => {
+  let project;
+
+  beforeEach(async () => {
     project = await setupProject();
   });
 
   afterEach(() => {
-    await teardownProject();
+    teardownProject();
   });
 
-  // Run the bin and do something with the result
-  test('a test', async () => {
+  test('outputs version', async () => {
+    const result = await runBin('--version');
+    expect(result.stdout).toContain('1.0.0');
+  });
+
+  test('processes files', async () => {
+    // Create files in the temp project
+    project.files = {
+      'src/index.js': 'console.log("hello");',
+    };
+    await project.write();
+
+    const result = await runBin('src/index.js');
+    expect(result.exitCode).toBe(0);
+  });
+});
+```
+
+## How it works
+
+bin-tester creates an isolated temp directory for each test, runs your CLI as a child process, and captures the result. After each test, the temp directory is cleaned up automatically.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Your Test                                              │
+│                                                         │
+│  1. setupProject() → Creates /tmp/tmp-abc123/           │
+│  2. project.files = {...} → Write fixture files         │
+│  3. runBin('--flag') → Spawns CLI as child process      │
+│  4. Assert on result.stdout, result.stderr, etc.        │
+│  5. teardownProject() → Removes /tmp/tmp-abc123/        │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+## Full example
+
+```js
+import { createBinTester } from '@scalvert/bin-tester';
+
+describe('my-cli', () => {
+  let project;
+  const { setupProject, teardownProject, runBin } = createBinTester({
+    binPath: 'node_modules/.bin/my-cli',
+    staticArgs: ['--config', 'test.config.js'], // args passed to every invocation
+  });
+
+  beforeEach(async () => {
+    project = await setupProject();
+  });
+
+  afterEach(() => {
+    teardownProject();
+  });
+
+  test('basic invocation', async () => {
     const result = await runBin();
-
-    expect(result.stdout).toBe('Did some stuff');
+    expect(result.stdout).toBe('Done');
   });
 
-  test('another test', async () => {
-    // Write a file with contents to the tmp directory
-    await project.writeDirJSON({
-      'some/file.txt': 'some content',
-    });
+  test('with fixture files', async () => {
+    // Write files to the temp project
+    project.files = {
+      'src/index.js': 'export default 42;',
+      'package.json': JSON.stringify({ name: 'test-project' }),
+    };
+    await project.write();
 
-    // pass some args to the bin that will be used for only this invocation
-    const result = await runBin('--path', 'some/file.txt');
+    // Run CLI with additional args
+    const result = await runBin('--input', 'src/index.js');
 
-    expect(result.stdout).toBe('Read "some/file.txt"');
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain('Processed');
+  });
+
+  test('handles errors', async () => {
+    const result = await runBin('--invalid-flag');
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain('Unknown flag');
   });
 });
 ```
