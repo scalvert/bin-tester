@@ -65,7 +65,7 @@
     "fixturify": "^3.0.0",
     "markdown-code": "^0.6.1",
     "prettier": "^3.5.3",
-    "release-it": "^17.11.0",
+    "release-it": "^19.2.2",
     "tsup": "^8.4.0",
     "type-fest": "^4.39.1",
     "typedoc": "^0.28.15",
