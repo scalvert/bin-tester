@@ -1,1 +1,1 @@
-await runBinDebug('--flag');  // runs with --inspect
+await runBinDebug('--flag'); // runs with --inspect
