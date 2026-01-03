@@ -67,17 +67,17 @@ describe('my-cli', () => {
 
 bin-tester creates an isolated temp directory for each test, runs your CLI as a child process, and captures the result. After each test, the temp directory is cleaned up automatically.
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  Your Test                                              │
-│                                                         │
-│  1. setupProject() → Creates /tmp/tmp-abc123/           │
-│  2. project.files = {...} → Write fixture files         │
-│  3. runBin('--flag') → Spawns CLI as child process      │
-│  4. Assert on result.stdout, result.stderr, etc.        │
-│  5. teardownProject() → Removes /tmp/tmp-abc123/        │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    A[setupProject] --> B[Write fixtures]
+    B --> C[runBin]
+    C --> D[Assert result]
+    D --> E[teardownProject]
+
+    subgraph "Temp Directory"
+        B
+        C
+    end
 ```
 
 ## Full example
