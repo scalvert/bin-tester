@@ -144,6 +144,8 @@ describe('createBinTester', () => {
     const result = await runBin('--with', 'some', '--arguments', {
       env: {
         BIN_TESTER: true,
+        BIN_TESTER_DEBUG: 'false',
+        NODE_OPTIONS: '',
       },
     });
 
@@ -154,4 +156,71 @@ describe('createBinTester', () => {
 
     expect(existsSync(project.baseDir)).toEqual(false);
   });
+
+  test('BIN_TESTER_DEBUG env toggles inspector flags passed to child', async () => {
+    const { setupProject, teardownProject, runBin } = createBinTester({
+      binPath: fileURLToPath(new URL('fixtures/print-exec-argv.js', import.meta.url)),
+    });
+
+    const project = await setupProject();
+
+    try {
+      process.env.BIN_TESTER_DEBUG = 'attach';
+
+      const result = await runBin({});
+
+      const execArgv = JSON.parse(result.stdout);
+
+      expect(Array.isArray(execArgv)).toEqual(true);
+      expect(execArgv.find((a: string) => a.startsWith('--inspect'))).toBeTypeOf('string');
+    } finally {
+      delete process.env.BIN_TESTER_DEBUG;
+      teardownProject();
+    }
+
+    expect(existsSync(project.baseDir)).toEqual(false);
+  });
+
+  test('runBinDebug enables inspector flags without global env change', async () => {
+    const { setupProject, teardownProject, runBinDebug } = createBinTester({
+      binPath: fileURLToPath(new URL('fixtures/print-exec-argv.js', import.meta.url)),
+    });
+
+    const project = await setupProject();
+
+    const before = process.env.BIN_TESTER_DEBUG;
+    expect(before).toBeUndefined();
+
+    const result = await runBinDebug({});
+    const execArgv = JSON.parse(result.stdout);
+    expect(execArgv.find((a: string) => a.startsWith('--inspect'))).toBeTypeOf('string');
+    expect(process.env.BIN_TESTER_DEBUG).toBeUndefined();
+
+    teardownProject();
+    expect(existsSync(project.baseDir)).toEqual(false);
+  });
+
+  test('BIN_TESTER_DEBUG preserves tmp dir on teardown', async () => {
+    const { setupProject, teardownProject, runBin } = createBinTester({
+      binPath: fileURLToPath(new URL('fixtures/fake-bin.js', import.meta.url)),
+    });
+
+    const project = await setupProject();
+
+    try {
+      process.env.BIN_TESTER_DEBUG = 'attach';
+      await runBin();
+
+      teardownProject();
+
+      // With DEBUG set, the directory should still exist
+      expect(existsSync(project.baseDir)).toEqual(true);
+    } finally {
+      delete process.env.BIN_TESTER_DEBUG;
+      teardownProject();
+    }
+
+    expect(existsSync(project.baseDir)).toEqual(false);
+  });
+
 });

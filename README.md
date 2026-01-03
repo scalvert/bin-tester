@@ -67,6 +67,82 @@ describe('Some tests', () => {
 });
 ```
 
+## Debugging
+
+bin-tester provides first-class debugging support for CLI tools. Enable debugging explicitly via environment variables or the `runBinDebug()` helper.
+
+### Environment variables
+
+```bash
+# Enable inspector (attach mode) and preserve fixtures
+BIN_TESTER_DEBUG=attach npm test
+
+# Break on first line of bin and preserve fixtures
+BIN_TESTER_DEBUG=break npm test
+```
+
+When debugging is enabled, bin-tester enables the Node inspector and preserves fixtures for inspection:
+```
+[bin-tester] Debugging enabled. Fixture: /tmp/tmp-abc123
+[bin-tester] Fixture preserved: /tmp/tmp-abc123
+```
+
+### Programmatic debugging
+
+Use `runBinDebug()` to enable debugging for a single invocation:
+
+```ts
+import { createBinTester } from '@scalvert/bin-tester';
+
+const { setupProject, teardownProject, runBinDebug } = createBinTester({
+  binPath: 'node_modules/.bin/your-cli',
+});
+
+const project = await setupProject();
+await runBinDebug('--some-flag'); // Runs with --inspect=0
+teardownProject();
+```
+
+### VS Code Setup
+
+Add this to your `.vscode/launch.json`:
+
+```jsonc
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Tests",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/vitest",
+      "runtimeArgs": ["run"],
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Debug Current Test File",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/vitest",
+      "runtimeArgs": ["run", "${relativeFile}"],
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal"
+    }
+  ]
+}
+```
+
+> **Note:** Replace `vitest` with your test runner (`jest`, `mocha`, etc.) as needed.
+
+The key setting is `"autoAttachChildProcesses": true` — this tells VS Code to attach to child processes spawned by bin-tester. Use `runBinDebug()` or set `BIN_TESTER_DEBUG=attach` in your test to enable the inspector.
+
+**Alternative: JavaScript Debug Terminal**
+
+Open the command palette (`Cmd+Shift+P`) → "Debug: JavaScript Debug Terminal" → run your tests with `BIN_TESTER_DEBUG=attach`.
+
 ## API
 
 <!--DOCS_START-->
