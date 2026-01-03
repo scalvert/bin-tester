@@ -1,8 +1,37 @@
 import execa from 'execa';
-import { mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import * as inspector from 'node:inspector';
 import BinTesterProject from './project';
-import type { SerializableStdio } from './replay';
+
+/**
+ * Detects if the parent process is being debugged using Node's built-in inspector module.
+ * This enables automatic debugging of child processes when the test runner is started with --inspect.
+ * @returns {boolean} True if the parent process has an active inspector session.
+ */
+function isParentBeingDebugged(): boolean {
+  // Primary detection: use the built-in inspector module
+  // inspector.url() returns the WebSocket URL if active, undefined otherwise
+  const inspectorUrl = inspector.url();
+  if (inspectorUrl) {
+    return true;
+  }
+
+  // Fallback: check process.execArgv for inspect flags
+  // This catches cases where inspector was passed but not yet fully initialized
+  const hasInspectFlag = process.execArgv.some(
+    (arg) => arg.startsWith('--inspect') || arg.startsWith('--debug')
+  );
+  if (hasInspectFlag) {
+    return true;
+  }
+
+  // Fallback: check NODE_OPTIONS environment variable
+  const nodeOptions = process.env.NODE_OPTIONS ?? '';
+  if (/--inspect/.test(nodeOptions)) {
+    return true;
+  }
+
+  return false;
+}
 interface BinTesterOptions<TProject> {
   /**
    * The absolute path to the bin to invoke
@@ -138,30 +167,37 @@ export function createBinTester<TProject extends BinTesterProject>(
         ? mergedOptions.binPath(project)
         : mergedOptions.binPath;
 
-    // Check both process.env and options.env for debug flag (options.env takes precedence)
+    // Determine if debugging should be enabled:
+    // 1. Explicit env var takes precedence (BIN_TESTER_DEBUG)
+    // 2. Auto-detect if parent is being debugged (unless explicitly disabled)
     const optionsEnv = mergedRunOptions.execaOptions.env as Record<string, string | undefined> | undefined;
     const debugEnv = optionsEnv?.BIN_TESTER_DEBUG ?? process.env.BIN_TESTER_DEBUG;
+    const explicitlyDisabled =
+      debugEnv === '0' || String(debugEnv).toLowerCase() === 'false';
+    const autoDetected = !explicitlyDisabled && !debugEnv && isParentBeingDebugged();
+
     const nodeInspectorArgs: string[] = [];
-    if (debugEnv && String(debugEnv).toLowerCase() !== '0' && String(debugEnv).toLowerCase() !== 'false') {
-      const mode = String(debugEnv).toLowerCase();
-      if (mode === 'attach') {
+    if (!explicitlyDisabled && (debugEnv || autoDetected)) {
+      const mode = String(debugEnv ?? 'attach').toLowerCase();
+      if (mode === 'attach' || autoDetected) {
+        // Use --inspect=0 for attach mode (dynamic port selection)
         nodeInspectorArgs.push('--inspect=0');
       } else {
+        // Use --inspect-brk=0 to break on first line
         nodeInspectorArgs.push('--inspect-brk=0');
       }
     }
 
     const resolvedCwd = (mergedRunOptions.execaOptions as execa.Options<string>).cwd ?? project.baseDir;
-    // Normalize stdio to a serializable value for the artifact
-    // Non-serializable values (Stream, number, arrays) fall back to 'pipe'
-    const rawStdio = mergedRunOptions.execaOptions.stdio;
-    const serializableStdioValues: SerializableStdio[] = ['pipe', 'ignore', 'inherit', 'ipc'];
-    const stdioMode: SerializableStdio =
-      typeof rawStdio === 'string' && serializableStdioValues.includes(rawStdio as SerializableStdio)
-        ? (rawStdio as SerializableStdio)
-        : 'pipe';
+    const debuggingEnabled = !explicitlyDisabled && (debugEnv || autoDetected);
 
-    const child = execa(
+    // Log fixture path when debugging is enabled
+    if (debuggingEnabled) {
+      const source = autoDetected ? ' (auto-detected)' : '';
+      console.log(`[bin-tester] Debugging enabled${source}. Fixture: ${project.baseDir}`);
+    }
+
+    return execa(
       process.execPath,
       [...nodeInspectorArgs, binPath, ...mergedOptions.staticArgs, ...mergedRunOptions.args],
       {
@@ -170,35 +206,6 @@ export function createBinTester<TProject extends BinTesterProject>(
         ...mergedRunOptions.execaOptions,
       }
     );
-
-    try {
-      const artifactDir = join(project.baseDir, '.bin-tester');
-      mkdirSync(artifactDir, { recursive: true });
-      const artifactPath = join(artifactDir, 'last-run.json');
-      const envOverrides = Object.fromEntries(
-        Object.entries(mergedRunOptions.execaOptions.env ?? {}).map(([k, v]) => [k, v === undefined ? '' : String(v)])
-      );
-      const artifact = {
-        nodePath: process.execPath,
-        binPath,
-        args: [...mergedOptions.staticArgs, ...mergedRunOptions.args],
-        cwd: resolvedCwd,
-        envOverrides,
-        stdioMode,
-        timestamp: new Date().toISOString(),
-      } as const;
-      writeFileSync(artifactPath, JSON.stringify(artifact, undefined, 2));
-      // Only log replay hint when BIN_TESTER_DEBUG is set to reduce noise in normal test runs
-      if (debugEnv) {
-        console.log(`Replay with: bin-tester replay '${artifactPath}'`);
-      }
-    } catch (error) {
-      // Log warning but don't fail the run - artifact persistence is optional
-      const message = error instanceof Error ? error.message : String(error);
-      console.warn(`[bin-tester] Warning: Failed to persist run artifact: ${message}`);
-    }
-
-    return child;
   }
 
   /**
@@ -248,13 +255,27 @@ export function createBinTester<TProject extends BinTesterProject>(
 
   /**
    * Tears the project down, ensuring the tmp directory is removed. Should be paired with setupProject.
+   * When debugging is active (auto-detected or via BIN_TESTER_DEBUG), the fixture is preserved automatically.
    * @param {object} [options] Optional teardown options.
-   * @param {boolean} [options.force] When true, forces teardown even if BIN_TESTER_KEEP_FIXTURE is set.
+   * @param {boolean} [options.force] When true, forces teardown even if debugging or BIN_TESTER_KEEP_FIXTURE is set.
    */
   function teardownProject(options?: { force?: boolean }) {
-    const keep = process.env.BIN_TESTER_KEEP_FIXTURE;
-    const shouldKeep = keep && String(keep) !== '0' && String(keep).toLowerCase() !== 'false';
-    if (shouldKeep && !(options && options.force)) {
+    if (options?.force) {
+      project.dispose();
+      return;
+    }
+
+    // Check if fixture should be preserved
+    const keepEnv = process.env.BIN_TESTER_KEEP_FIXTURE;
+    const explicitKeep = keepEnv && String(keepEnv) !== '0' && String(keepEnv).toLowerCase() !== 'false';
+
+    // Auto-keep when debugging is active
+    const debugEnv = process.env.BIN_TESTER_DEBUG;
+    const debugExplicitlyDisabled = debugEnv === '0' || String(debugEnv).toLowerCase() === 'false';
+    const debuggingActive = !debugExplicitlyDisabled && (debugEnv || isParentBeingDebugged());
+
+    if (explicitKeep || debuggingActive) {
+      console.log(`[bin-tester] Fixture preserved: ${project.baseDir}`);
       return;
     }
 

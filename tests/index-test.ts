@@ -1,4 +1,4 @@
-import { statSync, existsSync, readFileSync } from 'node:fs';
+import { statSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, test, expect } from 'vitest';
 import { createBinTester, BinTesterProject } from '../src';
@@ -173,9 +173,8 @@ describe('createBinTester', () => {
       expect(execArgv.find((a: string) => a.startsWith('--inspect'))).toBeTypeOf('string');
     } finally {
       delete process.env.BIN_TESTER_DEBUG;
+      teardownProject({ force: true });
     }
-
-    teardownProject();
 
     expect(existsSync(project.baseDir)).toEqual(false);
   });
@@ -195,65 +194,86 @@ describe('createBinTester', () => {
     expect(execArgv.find((a: string) => a.startsWith('--inspect'))).toBeTypeOf('string');
     expect(process.env.BIN_TESTER_DEBUG).toBeUndefined();
 
-    teardownProject();
-    expect(existsSync(project.baseDir)).toEqual(false);
-  });
-
-  test('persists last-run.json with command, args, cwd and env overrides', async () => {
-    const { setupProject, teardownProject, runBin } = createBinTester({
-      binPath: fileURLToPath(new URL('fixtures/fake-bin-with-env.js', import.meta.url)),
-      staticArgs: ['--static', 'true'],
-    });
-
-    const project = await setupProject();
-
-    const result = await runBin('--with', 'args', {
-      env: {
-        BIN_TESTER: 'true',
-      },
-    });
-
-    expect(result.stdout).toMatchInlineSnapshot('"I am an env var true"');
-
-    const artifactPath = `${project.baseDir}/.bin-tester/last-run.json`;
-    expect(existsSync(artifactPath)).toEqual(true);
-
-    const artifact = JSON.parse(readFileSync(artifactPath, 'utf8'));
-    expect(typeof artifact.nodePath).toEqual('string');
-    expect(typeof artifact.binPath).toEqual('string');
-    expect(Array.isArray(artifact.args)).toEqual(true);
-    expect(artifact.cwd).toEqual(project.baseDir);
-    expect(artifact.envOverrides).toMatchObject({ BIN_TESTER: 'true' });
-    expect(['inherit', 'pipe']).toContain(artifact.stdioMode);
-    expect(typeof artifact.timestamp).toEqual('string');
-
-    teardownProject();
-
-    expect(existsSync(project.baseDir)).toEqual(false);
-  });
-
-  test('replay printOnly outputs the same command components', async () => {
-    const { setupProject, teardownProject, runBin } = createBinTester({
-      binPath: fileURLToPath(new URL('fixtures/fake-bin.js', import.meta.url)),
-      staticArgs: ['--static', 'true'],
-    });
-
-    const project = await setupProject();
-    await runBin('--with', 'args');
-
-    const { readLastRunInfo, replayLastRun } = await import('../src/replay');
-    const info = readLastRunInfo(project.baseDir);
-    const printed = replayLastRun(project.baseDir, { printOnly: true, stdio: 'inherit' }) as {
-      nodePath: string;
-      args: Array<string>;
-      cwd: string;
-    };
-
-    expect(printed.nodePath).toEqual(info.nodePath);
-    expect(printed.cwd).toEqual(info.cwd);
-    expect(printed.args).toEqual([info.binPath, ...info.args]);
-
     teardownProject({ force: true });
+    expect(existsSync(project.baseDir)).toEqual(false);
+  });
+
+  test('auto-detects debugging when NODE_OPTIONS contains --inspect', async () => {
+    const { setupProject, teardownProject, runBin } = createBinTester({
+      binPath: fileURLToPath(new URL('fixtures/print-exec-argv.js', import.meta.url)),
+    });
+
+    const project = await setupProject();
+
+    // Save original values
+    const originalNodeOptions = process.env.NODE_OPTIONS;
+    const originalDebug = process.env.BIN_TESTER_DEBUG;
+
+    try {
+      // Simulate parent being debugged via NODE_OPTIONS (without explicit BIN_TESTER_DEBUG)
+      process.env.NODE_OPTIONS = '--inspect=9229';
+      delete process.env.BIN_TESTER_DEBUG;
+
+      const result = await runBin({});
+      const execArgv = JSON.parse(result.stdout);
+
+      // Child should have received --inspect flag due to auto-detection
+      expect(execArgv.find((a: string) => a.startsWith('--inspect'))).toBeTypeOf('string');
+    } finally {
+      // Restore original values
+      if (originalNodeOptions === undefined) {
+        delete process.env.NODE_OPTIONS;
+      } else {
+        process.env.NODE_OPTIONS = originalNodeOptions;
+      }
+      if (originalDebug === undefined) {
+        delete process.env.BIN_TESTER_DEBUG;
+      } else {
+        process.env.BIN_TESTER_DEBUG = originalDebug;
+      }
+      teardownProject({ force: true });
+    }
+
+    expect(existsSync(project.baseDir)).toEqual(false);
+  });
+
+  test('BIN_TESTER_DEBUG=false disables auto-detection', async () => {
+    const { setupProject, teardownProject, runBin } = createBinTester({
+      binPath: fileURLToPath(new URL('fixtures/print-exec-argv.js', import.meta.url)),
+    });
+
+    const project = await setupProject();
+
+    // Save original values
+    const originalNodeOptions = process.env.NODE_OPTIONS;
+    const originalDebug = process.env.BIN_TESTER_DEBUG;
+
+    try {
+      // Simulate parent being debugged, but explicitly disable bin-tester debug
+      process.env.NODE_OPTIONS = '--inspect=9229';
+      process.env.BIN_TESTER_DEBUG = 'false';
+
+      const result = await runBin({});
+      const execArgv = JSON.parse(result.stdout);
+
+      // Child should NOT have received --inspect flag because explicitly disabled
+      expect(execArgv.find((a: string) => a.startsWith('--inspect'))).toBeUndefined();
+    } finally {
+      // Restore original values
+      if (originalNodeOptions === undefined) {
+        delete process.env.NODE_OPTIONS;
+      } else {
+        process.env.NODE_OPTIONS = originalNodeOptions;
+      }
+      if (originalDebug === undefined) {
+        delete process.env.BIN_TESTER_DEBUG;
+      } else {
+        process.env.BIN_TESTER_DEBUG = originalDebug;
+      }
+    }
+
+    teardownProject();
+    expect(existsSync(project.baseDir)).toEqual(false);
   });
 
   test('BIN_TESTER_KEEP_FIXTURE preserves tmp dir on teardown', async () => {
@@ -278,6 +298,36 @@ describe('createBinTester', () => {
     }
 
     // After forced teardown, directory should be gone
+    expect(existsSync(project.baseDir)).toEqual(false);
+  });
+
+  test('debugging auto-preserves fixture on teardown', async () => {
+    const { setupProject, teardownProject, runBin } = createBinTester({
+      binPath: fileURLToPath(new URL('fixtures/fake-bin.js', import.meta.url)),
+    });
+
+    const project = await setupProject();
+
+    try {
+      process.env.BIN_TESTER_DEBUG = 'attach';
+      await runBin();
+
+      // Temporarily clear DEBUG to test teardown behavior
+      delete process.env.BIN_TESTER_DEBUG;
+
+      // Simulate debugging still active via NODE_OPTIONS
+      process.env.NODE_OPTIONS = '--inspect=9229';
+
+      teardownProject();
+
+      // With debugging active, fixture should be preserved
+      expect(existsSync(project.baseDir)).toEqual(true);
+    } finally {
+      delete process.env.BIN_TESTER_DEBUG;
+      delete process.env.NODE_OPTIONS;
+      teardownProject({ force: true });
+    }
+
     expect(existsSync(project.baseDir)).toEqual(false);
   });
 });
