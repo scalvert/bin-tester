@@ -1,6 +1,9 @@
 import execa from 'execa';
 import BinTesterProject from './project';
-interface BinTesterOptions<TProject> {
+/**
+ * Options for configuring the bin tester.
+ */
+export interface BinTesterOptions<TProject> {
   /**
    * The absolute path to the bin to invoke
    */
@@ -60,7 +63,10 @@ interface RunBin {
 
 type RunBinArgs = (string | execa.Options<string>)[];
 
-interface CreateBinTesterResult<TProject extends BinTesterProject> {
+/**
+ * The result returned by createBinTester.
+ */
+export interface CreateBinTesterResult<TProject extends BinTesterProject> {
   /**
    * Runs the configured bin function via execa.
    */

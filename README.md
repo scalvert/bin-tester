@@ -11,7 +11,7 @@ A test harness for Node.js CLI tools.
 
 Testing a CLI isn't like testing a library—you can't just import functions and call them. You need to spawn your CLI as a subprocess, give it real files to work with, and capture its output. bin-tester simplifies this:
 
-```ts
+```ts snippet=basic-example.ts
 import { createBinTester } from '@scalvert/bin-tester';
 
 describe('my-cli', () => {
@@ -51,7 +51,7 @@ npm add @scalvert/bin-tester --save-dev
 
 `createBinTester` returns helpers for setting up projects, running your CLI, and cleaning up:
 
-```ts
+```ts snippet=create-bin-tester.ts
 const { setupProject, teardownProject, runBin } = createBinTester({
   binPath: './bin/my-cli.js',
   staticArgs: ['--verbose'],  // args passed to every invocation
@@ -60,7 +60,7 @@ const { setupProject, teardownProject, runBin } = createBinTester({
 
 **Setup and teardown:**
 
-```ts
+```ts snippet=setup-teardown.ts
 const project = await setupProject();  // creates temp directory
 // ... run tests ...
 teardownProject();  // removes temp directory
@@ -68,7 +68,7 @@ teardownProject();  // removes temp directory
 
 **Writing fixture files:**
 
-```ts
+```ts snippet=writing-fixtures.ts
 project.files = {
   'src/index.js': 'export default 42;',
   'package.json': JSON.stringify({ name: 'test' }),
@@ -78,7 +78,7 @@ await project.write();
 
 **Running your CLI:**
 
-```ts
+```ts snippet=running-cli.ts
 const result = await runBin('--flag', 'arg');
 
 result.exitCode;  // number
@@ -97,7 +97,7 @@ BIN_TESTER_DEBUG=break npm test   # break on first line
 
 Or use `runBinDebug()` programmatically:
 
-```ts
+```ts snippet=run-bin-debug.ts
 await runBinDebug('--flag');  // runs with --inspect
 ```
 
@@ -117,111 +117,4 @@ For VS Code, add to `.vscode/launch.json`:
 
 ## API
 
-<!--DOCS_START-->
-## Classes
-
-<dl>
-<dt><a href="#BinTesterProject">BinTesterProject</a></dt>
-<dd></dd>
-</dl>
-
-## Functions
-
-<dl>
-<dt><a href="#createBinTester">createBinTester(options)</a> ⇒ <code>CreateBinTesterResult.&lt;TProject&gt;</code></dt>
-<dd><p>Creates the bin tester API functions to use within tests.</p></dd>
-</dl>
-
-<a name="BinTesterProject"></a>
-
-## BinTesterProject
-**Kind**: global class  
-
-* [BinTesterProject](#BinTesterProject)
-    * [new BinTesterProject(name, version, cb)](#new_BinTesterProject_new)
-    * [.gitInit()](#BinTesterProject+gitInit) ⇒ <code>\*</code>
-    * [.chdir()](#BinTesterProject+chdir)
-    * [.dispose()](#BinTesterProject+dispose) ⇒ <code>void</code>
-
-<a name="new_BinTesterProject_new"></a>
-
-### new BinTesterProject(name, version, cb)
-<p>Constructs an instance of a BinTesterProject.</p>
-
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| name | <code>string</code> | <code>&quot;fake-project&quot;</code> | <p>The name of the project. Used within the package.json as the name property.</p> |
-| version | <code>string</code> |  | <p>The version of the project. Used within the package.json as the version property.</p> |
-| cb | <code>function</code> |  | <p>An optional callback for additional setup steps after the project is constructed.</p> |
-
-<a name="BinTesterProject+gitInit"></a>
-
-### binTesterProject.gitInit() ⇒ <code>\*</code>
-<p>Runs <code>git init</code> inside a project.</p>
-
-**Kind**: instance method of [<code>BinTesterProject</code>](#BinTesterProject)  
-**Returns**: <code>\*</code> - <p>{execa.ExecaChildProcess<string>}</p>  
-<a name="BinTesterProject+chdir"></a>
-
-### binTesterProject.chdir()
-<p>Changes a directory from inside the project.</p>
-
-**Kind**: instance method of [<code>BinTesterProject</code>](#BinTesterProject)  
-<a name="BinTesterProject+dispose"></a>
-
-### binTesterProject.dispose() ⇒ <code>void</code>
-<p>Correctly disposes of the project, observing when the directory has been changed.</p>
-
-**Kind**: instance method of [<code>BinTesterProject</code>](#BinTesterProject)  
-<a name="createBinTester"></a>
-
-## createBinTester(options) ⇒ <code>CreateBinTesterResult.&lt;TProject&gt;</code>
-<p>Creates the bin tester API functions to use within tests.</p>
-
-**Kind**: global function  
-**Returns**: <code>CreateBinTesterResult.&lt;TProject&gt;</code> - <ul>
-<li>A project instance.</li>
-</ul>  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| options | <code>BinTesterOptions.&lt;TProject&gt;</code> | <p>An object of bin tester options</p> |
-
-
-* [createBinTester(options)](#createBinTester) ⇒ <code>CreateBinTesterResult.&lt;TProject&gt;</code>
-    * [~runBin(...args)](#createBinTester..runBin) ⇒ <code>execa.ExecaChildProcess.&lt;string&gt;</code>
-    * [~setupProject()](#createBinTester..setupProject)
-    * [~setupTmpDir()](#createBinTester..setupTmpDir)
-    * [~teardownProject()](#createBinTester..teardownProject)
-
-<a name="createBinTester..runBin"></a>
-
-### createBinTester~runBin(...args) ⇒ <code>execa.ExecaChildProcess.&lt;string&gt;</code>
-**Kind**: inner method of [<code>createBinTester</code>](#createBinTester)  
-**Returns**: <code>execa.ExecaChildProcess.&lt;string&gt;</code> - <p>An instance of execa's child process.</p>  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ...args | <code>RunBinArgs</code> | <p>Arguments or execa options.</p> |
-
-<a name="createBinTester..setupProject"></a>
-
-### createBinTester~setupProject()
-<p>Sets up the specified project for use within tests.</p>
-
-**Kind**: inner method of [<code>createBinTester</code>](#createBinTester)  
-<a name="createBinTester..setupTmpDir"></a>
-
-### createBinTester~setupTmpDir()
-<p>Sets up a tmp directory for use within tests.</p>
-
-**Kind**: inner method of [<code>createBinTester</code>](#createBinTester)  
-<a name="createBinTester..teardownProject"></a>
-
-### createBinTester~teardownProject()
-<p>Tears the project down, ensuring the tmp directory is removed. Should be paired with setupProject.</p>
-
-**Kind**: inner method of [<code>createBinTester</code>](#createBinTester)  
-
-<!--DOCS_END-->
+See the [full API documentation](https://scalvert.github.io/bin-tester/).

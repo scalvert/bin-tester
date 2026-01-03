@@ -1,0 +1,3 @@
+const project = await setupProject();  // creates temp directory
+// ... run tests ...
+teardownProject();  // removes temp directory
