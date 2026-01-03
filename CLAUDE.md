@@ -18,6 +18,7 @@ npm run format        # Format all files with Prettier
 ```
 
 Run a single test:
+
 ```bash
 npx vitest run -t "test name pattern"
 ```
