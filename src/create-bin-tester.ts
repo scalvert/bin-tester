@@ -75,7 +75,7 @@ interface CreateBinTesterResult<TProject extends BinTesterProject> {
   setupTmpDir: () => Promise<string>;
   /**
    * Tears the project down, ensuring the tmp directory is removed.
-   * Set BIN_TESTER_KEEP_FIXTURE=1 to preserve fixtures for inspection.
+   * When BIN_TESTER_DEBUG is set, fixtures are preserved for inspection.
    */
   teardownProject: () => void;
   /**
@@ -210,11 +210,11 @@ export function createBinTester<TProject extends BinTesterProject>(
 
   /**
    * Tears the project down, ensuring the tmp directory is removed. Should be paired with setupProject.
-   * Set BIN_TESTER_KEEP_FIXTURE=1 to preserve fixtures for inspection.
+   * When BIN_TESTER_DEBUG is set, fixtures are preserved for inspection.
    */
   function teardownProject() {
-    const keepEnv = process.env.BIN_TESTER_KEEP_FIXTURE;
-    if (keepEnv && keepEnv !== '0' && keepEnv.toLowerCase() !== 'false') {
+    const debugEnv = process.env.BIN_TESTER_DEBUG;
+    if (debugEnv && debugEnv !== '0' && debugEnv.toLowerCase() !== 'false') {
       console.log(`[bin-tester] Fixture preserved: ${project.baseDir}`);
       return;
     }

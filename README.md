@@ -74,19 +74,17 @@ bin-tester provides first-class debugging support for CLI tools. Enable debuggin
 ### Environment variables
 
 ```bash
-# Enable inspector (attach mode)
+# Enable inspector (attach mode) and preserve fixtures
 BIN_TESTER_DEBUG=attach npm test
 
-# Break on first line of bin
+# Break on first line of bin and preserve fixtures
 BIN_TESTER_DEBUG=break npm test
-
-# Preserve fixtures for inspection after tests complete
-BIN_TESTER_KEEP_FIXTURE=1 npm test
 ```
 
-When debugging is enabled, bin-tester logs the fixture path:
+When debugging is enabled, bin-tester enables the Node inspector and preserves fixtures for inspection:
 ```
 [bin-tester] Debugging enabled. Fixture: /tmp/tmp-abc123
+[bin-tester] Fixture preserved: /tmp/tmp-abc123
 ```
 
 ### Programmatic debugging

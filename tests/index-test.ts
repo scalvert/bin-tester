@@ -200,7 +200,7 @@ describe('createBinTester', () => {
     expect(existsSync(project.baseDir)).toEqual(false);
   });
 
-  test('BIN_TESTER_KEEP_FIXTURE preserves tmp dir on teardown', async () => {
+  test('BIN_TESTER_DEBUG preserves tmp dir on teardown', async () => {
     const { setupProject, teardownProject, runBin } = createBinTester({
       binPath: fileURLToPath(new URL('fixtures/fake-bin.js', import.meta.url)),
     });
@@ -208,20 +208,18 @@ describe('createBinTester', () => {
     const project = await setupProject();
 
     try {
-      process.env.BIN_TESTER_KEEP_FIXTURE = '1';
+      process.env.BIN_TESTER_DEBUG = 'attach';
       await runBin();
 
       teardownProject();
 
-      // With KEEP_FIXTURE set, the directory should still exist
+      // With DEBUG set, the directory should still exist
       expect(existsSync(project.baseDir)).toEqual(true);
     } finally {
-      // Clean up for real so we don't leak tmp dirs
-      delete process.env.BIN_TESTER_KEEP_FIXTURE;
+      delete process.env.BIN_TESTER_DEBUG;
       teardownProject();
     }
 
-    // After forced teardown, directory should be gone
     expect(existsSync(project.baseDir)).toEqual(false);
   });
 
