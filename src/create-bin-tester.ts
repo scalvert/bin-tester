@@ -106,7 +106,8 @@ interface CreateBinTesterResult<TProject extends BinTesterProject> {
    */
   setupTmpDir: () => Promise<string>;
   /**
-   * Tears the project down, ensuring the tmp directory is removed. Should be paired with setupProject.
+   * Tears the project down. When debugging is active or BIN_TESTER_KEEP_FIXTURE is set,
+   * the fixture is preserved automatically. Use `{ force: true }` to always clean up.
    */
   teardownProject: (options?: { force?: boolean }) => void;
   /**
@@ -128,14 +129,15 @@ const DEFAULT_BIN_TESTER_OPTIONS = {
  */
 function parseArgs(args: RunBinArgs): RunOptions {
   if (args.length > 0 && typeof args[args.length - 1] === 'object') {
-    const execaOptions = args.pop();
+    const argsCopy = [...args];
+    const execaOptions = argsCopy.pop();
     return {
-      args,
+      args: argsCopy,
       execaOptions,
     } as RunOptions;
   } else {
     return {
-      args,
+      args: [...args],
       execaOptions: {},
     } as RunOptions;
   }

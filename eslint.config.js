@@ -46,7 +46,6 @@ export default [
       ...unicornPlugin.configs.recommended.rules,
       'unicorn/prefer-at': 'off',
       'unicorn/no-typeof-undefined': 'off',
-      'unicorn/prefer-top-level-await': 'off',
     }
   },
   prettier,
