@@ -1,4 +1,4 @@
-import execa from 'execa';
+import { execaNode, type Options, type ResultPromise } from 'execa';
 import BinTesterProject from './project';
 /**
  * Options for configuring the bin tester.
@@ -26,7 +26,7 @@ interface RunOptions {
   /**
    * Options to provide to execa. @see https://github.com/sindresorhus/execa#options
    */
-  execaOptions: execa.Options<string>;
+  execaOptions: Options;
 }
 
 /**
@@ -35,32 +35,30 @@ interface RunOptions {
 export interface RunBin {
   /**
    * A runBin implementation that takes no parameters.
-   * @returns {*}  {execa.ExecaChildProcess<string>}
+   * @returns {*}  {ResultPromise}
    */
-  (): execa.ExecaChildProcess<string>;
+  (): ResultPromise;
   /**
    * A runBin implementation that takes string varargs.
    * @param {...RunBinArgs} args
-   * @returns {*}  {execa.ExecaChildProcess<string>}
+   * @returns {*}  {ResultPromise}
    */
-  (...args: [...binArgs: string[]]): execa.ExecaChildProcess<string>;
+  (...args: [...binArgs: string[]]): ResultPromise;
   /**
-   * A runBin implementation that takes an execa.Options<string> object.
+   * A runBin implementation that takes an Options object.
    * @param {...RunBinArgs} args
-   * @returns {*}  {execa.ExecaChildProcess<string>}
+   * @returns {*}  {ResultPromise}
    */
-  (...args: [execaOptions: execa.Options<string>]): execa.ExecaChildProcess<string>;
+  (...args: [execaOptions: Options]): ResultPromise;
   /**
-   * A runBin implementation that takes string or an execa.Options<string> object varargs.
+   * A runBin implementation that takes string or an Options object varargs.
    * @param {...RunBinArgs} args
-   * @returns {*}  {execa.ExecaChildProcess<string>}
+   * @returns {*}  {ResultPromise}
    */
-  (
-    ...args: [...binArgs: string[], execaOptions: execa.Options<string>]
-  ): execa.ExecaChildProcess<string>;
+  (...args: [...binArgs: string[], execaOptions: Options]): ResultPromise;
 }
 
-type RunBinArgs = (string | execa.Options<string>)[];
+type RunBinArgs = (string | Options)[];
 
 /**
  * The result returned by createBinTester.
@@ -133,49 +131,43 @@ export function createBinTester<TProject extends BinTesterProject>(
 
   /**
    * @param {...RunBinArgs} args - Arguments or execa options.
-   * @returns {execa.ExecaChildProcess<string>} An instance of execa's child process.
+   * @returns {ResultPromise} An instance of execa's result promise.
    */
-  function runBin(...args: RunBinArgs): execa.ExecaChildProcess<string> {
+  function runBin(...args: RunBinArgs): ResultPromise {
     const mergedRunOptions = parseArgs(args);
     const binPath =
       typeof mergedOptions.binPath === 'function'
         ? mergedOptions.binPath(project)
         : mergedOptions.binPath;
 
-    const optionsEnv = mergedRunOptions.execaOptions.env as
-      | Record<string, string | undefined>
-      | undefined;
+    const optionsEnv = mergedRunOptions.execaOptions.env;
     const debugEnv = optionsEnv?.BIN_TESTER_DEBUG ?? process.env.BIN_TESTER_DEBUG;
 
-    const nodeInspectorArgs: string[] = [];
+    const nodeOptions: string[] = [];
     if (debugEnv && debugEnv !== '0' && debugEnv.toLowerCase() !== 'false') {
       if (debugEnv.toLowerCase() === 'break') {
-        nodeInspectorArgs.push('--inspect-brk=0');
+        nodeOptions.push('--inspect-brk=0');
       } else {
-        nodeInspectorArgs.push('--inspect=0');
+        nodeOptions.push('--inspect=0');
       }
       console.log(`[bin-tester] Debugging enabled. Fixture: ${project.baseDir}`);
     }
 
-    const resolvedCwd =
-      (mergedRunOptions.execaOptions as execa.Options<string>).cwd ?? project.baseDir;
+    const resolvedCwd = mergedRunOptions.execaOptions.cwd ?? project.baseDir;
 
-    return execa(
-      process.execPath,
-      [...nodeInspectorArgs, binPath, ...mergedOptions.staticArgs, ...mergedRunOptions.args],
-      {
-        reject: false,
-        cwd: resolvedCwd,
-        ...mergedRunOptions.execaOptions,
-      }
-    );
+    return execaNode(binPath, [...mergedOptions.staticArgs, ...mergedRunOptions.args], {
+      reject: false,
+      cwd: resolvedCwd,
+      nodeOptions,
+      ...mergedRunOptions.execaOptions,
+    });
   }
 
   /**
    * Runs the configured bin with Node inspector enabled in attach mode (--inspect).
    * @param {...RunBinArgs} args Arguments identical to runBin
    */
-  function runBinDebug(...args: RunBinArgs): execa.ExecaChildProcess<string> {
+  function runBinDebug(...args: RunBinArgs): ResultPromise {
     const parsedArgs = parseArgs(args);
     // Pass debug mode through execa env options to avoid race conditions with process.env
     const debugEnv = process.env.BIN_TESTER_DEBUG || 'attach';

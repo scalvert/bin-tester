@@ -1,4 +1,4 @@
-import execa from 'execa';
+import { execa, type ResultPromise } from 'execa';
 import { Project } from 'fixturify-project';
 
 const ROOT = process.cwd();
@@ -24,10 +24,10 @@ export default class BinTesterProject extends Project {
 
   /**
    * Runs `git init` inside a project.
-   * @returns {*} {execa.ExecaChildProcess<string>}
+   * @returns {*} {ResultPromise}
    */
-  gitInit(): execa.ExecaChildProcess<string> {
-    return execa(`git init -q ${this.baseDir}`);
+  gitInit(): ResultPromise {
+    return execa('git', ['init', '-q', this.baseDir]);
   }
 
   /**
