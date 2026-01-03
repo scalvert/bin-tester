@@ -1,0 +1,31 @@
+{
+  "snippetRoot": "./snippets",
+  "markdownGlob": "**/*.md",
+  "excludeGlob": [
+    "node_modules/**",
+    ".git/**",
+    "dist/**",
+    "docs/**",
+    "build/**",
+    "coverage/**",
+    ".next/**",
+    ".nuxt/**",
+    "out/**",
+    "target/**",
+    "vendor/**"
+  ],
+  "includeExtensions": [
+    ".ts",
+    ".js",
+    ".py",
+    ".java",
+    ".cpp",
+    ".c",
+    ".go",
+    ".rs",
+    ".php",
+    ".rb",
+    ".swift",
+    ".kt"
+  ]
+}

@@ -8,7 +8,7 @@ import prettier from 'eslint-config-prettier';
 
 export default [
   {
-    ignores: ['dist/**/*']
+    ignores: ['dist/**/*', 'docs/**/*', 'snippets/**/*']
   },
   js.configs.recommended,
   {

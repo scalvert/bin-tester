@@ -1,0 +1,10 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["./src/index.ts"],
+  "out": "./docs",
+  "name": "@scalvert/bin-tester",
+  "readme": "none",
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "githubPages": true
+}
