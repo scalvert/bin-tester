@@ -61,7 +61,7 @@
     "eslint-plugin-jsdoc": "^50.6.9",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^5.2.6",
-    "eslint-plugin-unicorn": "^58.0.0",
+    "eslint-plugin-unicorn": "^62.0.0",
     "fixturify": "^3.0.0",
     "markdown-code": "^0.6.1",
     "prettier": "^3.5.3",
