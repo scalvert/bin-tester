@@ -36,6 +36,9 @@ export default [
       ...jsdocPlugin.configs.recommended.rules,
       'jsdoc/tag-lines': ['warn', 'never'],
       'jsdoc/require-returns': 'off',
+      'jsdoc/reject-any-type': 'off',
+      'jsdoc/reject-function-type': 'off',
+      'jsdoc/escape-inline-tags': 'off',
     },
   },
   {

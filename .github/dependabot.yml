@@ -4,5 +4,43 @@ updates:
     directory: '/'
     schedule:
       interval: weekly
+      day: monday
       time: '04:00'
     open-pull-requests-limit: 10
+    commit-message:
+      prefix: 'chore(deps)'
+      prefix-development: 'chore(deps-dev)'
+    labels:
+      - dependencies
+    groups:
+      # Group all minor and patch updates into a single PR
+      minor-and-patch:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+      # Group eslint-related packages
+      eslint:
+        patterns:
+          - 'eslint*'
+          - '@typescript-eslint/*'
+        update-types:
+          - major
+      # Group test-related packages
+      testing:
+        patterns:
+          - 'vitest'
+          - 'vite'
+        update-types:
+          - major
+      # Group build/release tooling
+      build-tools:
+        patterns:
+          - 'release-it'
+          - '@release-it-plugins/*'
+          - 'tsup'
+          - 'typescript'
+          - 'typedoc'
+        update-types:
+          - major
