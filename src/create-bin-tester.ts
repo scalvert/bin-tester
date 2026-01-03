@@ -179,12 +179,13 @@ export function createBinTester<TProject extends BinTesterProject>(
     const nodeInspectorArgs: string[] = [];
     if (!explicitlyDisabled && (debugEnv || autoDetected)) {
       const mode = String(debugEnv ?? 'attach').toLowerCase();
-      if (mode === 'attach' || autoDetected) {
-        // Use --inspect=0 for attach mode (dynamic port selection)
-        nodeInspectorArgs.push('--inspect=0');
-      } else {
+      // Explicit 'break' mode takes precedence over auto-detection
+      if (mode === 'break') {
         // Use --inspect-brk=0 to break on first line
         nodeInspectorArgs.push('--inspect-brk=0');
+      } else {
+        // Use --inspect=0 for attach mode (default for explicit 'attach' or auto-detected)
+        nodeInspectorArgs.push('--inspect=0');
       }
     }
 
