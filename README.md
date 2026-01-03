@@ -69,15 +69,45 @@ describe('Some tests', () => {
 
 ## Debugging
 
-### It Just Works™
+bin-tester provides first-class debugging support for CLI tools. Enable debugging explicitly via environment variables or the `runBinDebug()` helper.
 
-When you debug your tests, bin-tester **automatically detects** that the parent process is running under the Node inspector and enables debugging for child processes. No configuration required.
+### Environment variables
 
-bin-tester detects debugging via Node's built-in `inspector.url()` API, `process.execArgv`, and `NODE_OPTIONS`.
+```bash
+# Enable inspector (attach mode)
+BIN_TESTER_DEBUG=attach npm test
 
-### VS Code Setup (Recommended)
+# Break on first line of bin
+BIN_TESTER_DEBUG=break npm test
 
-Add this to your `.vscode/launch.json` for one-click debugging:
+# Preserve fixtures for inspection after tests complete
+BIN_TESTER_KEEP_FIXTURE=1 npm test
+```
+
+When debugging is enabled, bin-tester logs the fixture path:
+```
+[bin-tester] Debugging enabled. Fixture: /tmp/tmp-abc123
+```
+
+### Programmatic debugging
+
+Use `runBinDebug()` to enable debugging for a single invocation:
+
+```ts
+import { createBinTester } from '@scalvert/bin-tester';
+
+const { setupProject, teardownProject, runBinDebug } = createBinTester({
+  binPath: 'node_modules/.bin/your-cli',
+});
+
+const project = await setupProject();
+await runBinDebug('--some-flag'); // Runs with --inspect=0
+teardownProject();
+```
+
+### VS Code Setup
+
+Add this to your `.vscode/launch.json`:
 
 ```jsonc
 {
@@ -109,89 +139,11 @@ Add this to your `.vscode/launch.json` for one-click debugging:
 
 > **Note:** Replace `vitest` with your test runner (`jest`, `mocha`, etc.) as needed.
 
-The key setting is `"autoAttachChildProcesses": true` — this tells VS Code to automatically attach to any child processes (like those spawned by bin-tester), so breakpoints in your bin's code work seamlessly.
+The key setting is `"autoAttachChildProcesses": true` — this tells VS Code to attach to child processes spawned by bin-tester. Use `runBinDebug()` or set `BIN_TESTER_DEBUG=attach` in your test to enable the inspector.
 
 **Alternative: JavaScript Debug Terminal**
 
-Open the command palette (`Cmd+Shift+P`) → "Debug: JavaScript Debug Terminal" → run your tests normally. VS Code will attach to all Node processes automatically.
-
-### Terminal Debugging
-
-Run your tests with Node's `--inspect` or `--inspect-brk` flag. bin-tester will auto-detect and enable debugging for child processes:
-
-```bash
-# Using node directly
-node --inspect node_modules/.bin/vitest run
-
-# Or via NODE_OPTIONS
-NODE_OPTIONS='--inspect' npm test
-```
-
-Then open `chrome://inspect` in Chrome (or Edge) and click "Open dedicated DevTools for Node". The debugger will attach to both the test runner and any child processes spawned by bin-tester.
-
-To break on the first line of your bin:
-
-```bash
-BIN_TESTER_DEBUG=break npm test
-```
-
-### Manual control (optional)
-
-Explicitly control debugging without relying on auto-detection:
-
-```bash
-# Enable inspector (attach mode)
-BIN_TESTER_DEBUG=attach npm test
-
-# Break on first line of bin
-BIN_TESTER_DEBUG=break npm test
-
-# Disable auto-detection explicitly
-BIN_TESTER_DEBUG=false npm test
-```
-
-### Fixture Preservation
-
-When debugging is active, bin-tester **automatically preserves** the fixture directory after tests complete. This lets you inspect files, logs, or state after a test run.
-
-The fixture path is logged when debugging:
-```
-[bin-tester] Debugging enabled. Fixture: /tmp/tmp-abc123
-[bin-tester] Fixture preserved: /tmp/tmp-abc123
-```
-
-To force cleanup even when debugging, pass `{ force: true }`:
-```ts
-teardownProject({ force: true });
-```
-
-### Environment variables
-
-- `BIN_TESTER_DEBUG`
-  - `attach` → enable inspector in attach mode
-  - `break` → break on first line of bin
-  - `false` or `0` → disable auto-detection
-  - When set (or auto-detected), fixtures are automatically preserved.
-
-- `BIN_TESTER_KEEP_FIXTURE`
-  - Explicitly preserve fixtures even when not debugging.
-  - Pass `{ force: true }` to `teardownProject()` to override.
-
-### Programmatic debugging
-
-Use `runBinDebug()` to enable debugging for a single invocation without environment variables:
-
-```ts
-import { createBinTester } from '@scalvert/bin-tester';
-
-const { setupProject, teardownProject, runBinDebug } = createBinTester({
-  binPath: 'node_modules/.bin/your-cli',
-});
-
-const project = await setupProject();
-await runBinDebug('--some-flag');
-teardownProject({ force: true }); // Clean up manually since debugging preserves fixtures
-```
+Open the command palette (`Cmd+Shift+P`) → "Debug: JavaScript Debug Terminal" → run your tests with `BIN_TESTER_DEBUG=attach`.
 
 ## API
 
