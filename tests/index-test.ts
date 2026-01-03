@@ -222,5 +222,4 @@ describe('createBinTester', () => {
 
     expect(existsSync(project.baseDir)).toEqual(false);
   });
-
 });

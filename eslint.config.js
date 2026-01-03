@@ -8,7 +8,7 @@ import prettier from 'eslint-config-prettier';
 
 export default [
   {
-    ignores: ['dist/**/*', 'docs/**/*', 'snippets/**/*']
+    ignores: ['dist/**/*', 'docs/**/*', 'snippets/**/*'],
   },
   js.configs.recommended,
   {
@@ -22,31 +22,31 @@ export default [
   {
     files: ['**/*.ts', '**/*.tsx'],
     plugins: {
-      '@typescript-eslint': tsPlugin
+      '@typescript-eslint': tsPlugin,
     },
     rules: {
-      ...tsPlugin.configs.recommended.rules
-    }
+      ...tsPlugin.configs.recommended.rules,
+    },
   },
   {
     plugins: {
-      jsdoc: jsdocPlugin
+      jsdoc: jsdocPlugin,
     },
     rules: {
       ...jsdocPlugin.configs.recommended.rules,
       'jsdoc/tag-lines': ['warn', 'never'],
       'jsdoc/require-returns': 'off',
-    }
+    },
   },
   {
     plugins: {
-      unicorn: unicornPlugin
+      unicorn: unicornPlugin,
     },
     rules: {
       ...unicornPlugin.configs.recommended.rules,
       'unicorn/prefer-at': 'off',
       'unicorn/no-typeof-undefined': 'off',
-    }
+    },
   },
   prettier,
   {
@@ -63,7 +63,7 @@ export default [
         es6: true,
         process: true,
         console: true,
-        URL: true
+        URL: true,
       },
     },
     files: ['**/*.js', '**/*.ts'],
@@ -87,7 +87,7 @@ export default [
   {
     files: ['tests/fixtures/fake-bin.js', 'tests/fixtures/fake-bin-with-env.js'],
     rules: {
-      'shebang': 'off',
+      shebang: 'off',
     },
   },
-]; 
+];
