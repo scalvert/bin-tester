@@ -142,7 +142,9 @@ export function createBinTester<TProject extends BinTesterProject>(
         ? mergedOptions.binPath(project)
         : mergedOptions.binPath;
 
-    const optionsEnv = mergedRunOptions.execaOptions.env as Record<string, string | undefined> | undefined;
+    const optionsEnv = mergedRunOptions.execaOptions.env as
+      | Record<string, string | undefined>
+      | undefined;
     const debugEnv = optionsEnv?.BIN_TESTER_DEBUG ?? process.env.BIN_TESTER_DEBUG;
 
     const nodeInspectorArgs: string[] = [];
@@ -155,7 +157,8 @@ export function createBinTester<TProject extends BinTesterProject>(
       console.log(`[bin-tester] Debugging enabled. Fixture: ${project.baseDir}`);
     }
 
-    const resolvedCwd = (mergedRunOptions.execaOptions as execa.Options<string>).cwd ?? project.baseDir;
+    const resolvedCwd =
+      (mergedRunOptions.execaOptions as execa.Options<string>).cwd ?? project.baseDir;
 
     return execa(
       process.execPath,
