@@ -29,32 +29,31 @@ interface RunOptions {
   execaOptions: execa.Options<string>;
 }
 
-interface RunBin {
+/**
+ * Function signature for running the configured CLI binary.
+ */
+export interface RunBin {
   /**
    * A runBin implementation that takes no parameters.
    * @returns {*}  {execa.ExecaChildProcess<string>}
-   * @memberof RunBin
    */
   (): execa.ExecaChildProcess<string>;
   /**
    * A runBin implementation that takes string varargs.
    * @param {...RunBinArgs} args
    * @returns {*}  {execa.ExecaChildProcess<string>}
-   * @memberof RunBin
    */
   (...args: [...binArgs: string[]]): execa.ExecaChildProcess<string>;
   /**
    * A runBin implementation that takes an execa.Options<string> object.
    * @param {...RunBinArgs} args
    * @returns {*}  {execa.ExecaChildProcess<string>}
-   * @memberof RunBin
    */
   (...args: [execaOptions: execa.Options<string>]): execa.ExecaChildProcess<string>;
   /**
    * A runBin implementation that takes string or an execa.Options<string> object varargs.
    * @param {...RunBinArgs} args
    * @returns {*}  {execa.ExecaChildProcess<string>}
-   * @memberof RunBin
    */
   (
     ...args: [...binArgs: string[], execaOptions: execa.Options<string>]

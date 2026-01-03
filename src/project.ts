@@ -31,6 +31,13 @@ export default class BinTesterProject extends Project {
   }
 
   /**
+   * Writes the project files to disk.
+   */
+  async write(): Promise<void> {
+    return super.write();
+  }
+
+  /**
    * Changes a directory from inside the project.
    */
   async chdir(): Promise<void> {
