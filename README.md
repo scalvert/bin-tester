@@ -11,7 +11,7 @@ A test harness for Node.js CLI tools.
 Testing a CLI isn't like testing a library—you can't just import functions and call them. You need to spawn your CLI as a subprocess, give it real files to work with, and capture its output. testdrive simplifies this:
 
 ```ts snippet=basic-example.ts
-import { createBinTester } from 'testdrive';
+import { createBinTester } from '@scalvert/bin-tester';
 
 describe('my-cli', () => {
   const { setupProject, teardownProject, runBin } = createBinTester({
