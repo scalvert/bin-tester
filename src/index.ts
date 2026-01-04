@@ -1,7 +1,7 @@
 export {
-  createBinTester,
-  BinTesterOptions,
-  CreateBinTesterResult,
+  createTestDriver,
+  TestDriveOptions,
+  CreateTestDriverResult,
   RunBin,
-} from './create-bin-tester';
-export { default as BinTesterProject } from './project';
+} from './create-test-driver';
+export { default as TestDriveProject } from './project';

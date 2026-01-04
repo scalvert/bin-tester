@@ -2,7 +2,7 @@
   "$schema": "https://typedoc.org/schema.json",
   "entryPoints": ["./src/index.ts"],
   "out": "./docs",
-  "name": "@scalvert/bin-tester",
+  "name": "testdrive",
   "readme": "none",
   "excludePrivate": true,
   "excludeInternal": true,

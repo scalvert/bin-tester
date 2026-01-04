@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-bin-tester is a test harness for Node.js CLI tools. It creates temporary directories with fixture files, spawns CLI binaries as subprocesses, and captures their output for assertion.
+testdrive is a test harness for Node.js CLI tools. It creates temporary directories with fixture files, spawns CLI binaries as subprocesses, and captures their output for assertion.
 
 ## Commands
 
@@ -27,13 +27,13 @@ npx vitest run -t "test name pattern"
 
 The library exports two main pieces:
 
-1. **`createBinTester(options)`** - Factory function that returns test helpers:
-   - `setupProject()` - Creates a temp directory with a `BinTesterProject`
+1. **`createTestDriver(options)`** - Factory function that returns test helpers:
+   - `setupProject()` - Creates a temp directory with a `TestDriveProject`
    - `teardownProject()` - Cleans up the temp directory
    - `runBin(...args)` - Executes the configured CLI binary via `execaNode`
    - `runBinDebug(...args)` - Same as `runBin` but with Node inspector enabled
 
-2. **`BinTesterProject`** - Extends `fixturify-project`'s `Project` class. Provides:
+2. **`TestDriveProject`** - Extends `fixturify-project`'s `Project` class. Provides:
    - `files` property for defining fixture files
    - `write()` to persist files to the temp directory
    - `gitInit()` to initialize a git repo
@@ -46,4 +46,4 @@ The library exports two main pieces:
 
 ## Debugging Tests
 
-Set `BIN_TESTER_DEBUG=attach` or `BIN_TESTER_DEBUG=break` to enable Node inspector and preserve fixture directories after test runs.
+Set `TESTDRIVE_DEBUG=attach` or `TESTDRIVE_DEBUG=break` to enable Node inspector and preserve fixture directories after test runs.
