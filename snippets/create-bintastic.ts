@@ -1,4 +1,4 @@
-const { setupProject, teardownProject, runBin } = createTestDriver({
+const { setupProject, teardownProject, runBin } = createBintastic({
   binPath: './bin/my-cli.js',
   staticArgs: ['--verbose'], // args passed to every invocation
 });

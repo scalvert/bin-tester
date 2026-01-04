@@ -1,5 +1,5 @@
 {
-  "name": "testdrive",
+  "name": "bintastic",
   "version": "3.0.0",
   "description": "A test harness for Node.js CLI tools",
   "keywords": [
@@ -11,11 +11,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/scalvert/testdrive.git"
+    "url": "https://github.com/scalvert/bintastic.git"
   },
-  "homepage": "https://github.com/scalvert/testdrive#readme",
+  "homepage": "https://github.com/scalvert/bintastic#readme",
   "bugs": {
-    "url": "https://github.com/scalvert/testdrive/issues"
+    "url": "https://github.com/scalvert/bintastic/issues"
   },
   "license": "MIT",
   "author": "Steve Calvert <steve.calvert@gmail.com>",

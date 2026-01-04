@@ -1,7 +1,7 @@
-import { createTestDriver } from 'testdrive';
+import { createBintastic } from 'bintastic';
 
 describe('my-cli', () => {
-  const { setupProject, teardownProject, runBin } = createTestDriver({
+  const { setupProject, teardownProject, runBin } = createBintastic({
     binPath: './bin/my-cli.js',
   });
 

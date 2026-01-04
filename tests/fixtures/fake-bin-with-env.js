@@ -1,3 +1,3 @@
 #!/usr/bin/node
 
-console.log('I am an env var', process.env.TESTDRIVE);
+console.log('I am an env var', process.env.BINTASTIC);

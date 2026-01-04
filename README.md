@@ -1,8 +1,8 @@
-# testdrive
+# bintastic
 
-![CI Build](https://github.com/scalvert/testdrive/workflows/CI%20Build/badge.svg)
-[![npm version](https://badge.fury.io/js/testdrive.svg)](https://badge.fury.io/js/testdrive)
-[![License](https://img.shields.io/npm/l/testdrive.svg)](https://github.com/scalvert/testdrive/blob/master/package.json)
+![CI Build](https://github.com/scalvert/bintastic/workflows/CI%20Build/badge.svg)
+[![npm version](https://badge.fury.io/js/bintastic.svg)](https://badge.fury.io/js/bintastic)
+[![License](https://img.shields.io/npm/l/bintastic.svg)](https://github.com/scalvert/bintastic/blob/master/package.json)
 ![Dependabot](https://badgen.net/badge/icon/dependabot?icon=dependabot&label)
 [![Code Style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](#badge)
 
@@ -10,13 +10,13 @@
 
 A test harness for Node.js CLI tools.
 
-Testing a CLI isn't like testing a library—you can't just import functions and call them. You need to spawn your CLI as a subprocess, give it real files to work with, and capture its output. testdrive simplifies this:
+Testing a CLI isn't like testing a library—you can't just import functions and call them. You need to spawn your CLI as a subprocess, give it real files to work with, and capture its output. bintastic simplifies this:
 
 ```ts snippet=basic-example.ts
-import { createTestDriver } from 'testdrive';
+import { createBintastic } from 'bintastic';
 
 describe('my-cli', () => {
-  const { setupProject, teardownProject, runBin } = createTestDriver({
+  const { setupProject, teardownProject, runBin } = createBintastic({
     binPath: './bin/my-cli.js',
   });
 
@@ -45,15 +45,15 @@ describe('my-cli', () => {
 ## Install
 
 ```bash
-npm add testdrive --save-dev
+npm add bintastic --save-dev
 ```
 
 ## Usage
 
-`createTestDriver` returns helpers for setting up projects, running your CLI, and cleaning up:
+`createBintastic` returns helpers for setting up projects, running your CLI, and cleaning up:
 
-```ts snippet=create-test-driver.ts
-const { setupProject, teardownProject, runBin } = createTestDriver({
+```ts snippet=create-bintastic.ts
+const { setupProject, teardownProject, runBin } = createBintastic({
   binPath: './bin/my-cli.js',
   staticArgs: ['--verbose'], // args passed to every invocation
 });
@@ -89,11 +89,11 @@ result.stderr; // string
 
 ## Debugging
 
-Set `TESTDRIVE_DEBUG` to enable the Node inspector and preserve fixtures for inspection:
+Set `BINTASTIC_DEBUG` to enable the Node inspector and preserve fixtures for inspection:
 
 ```bash
-TESTDRIVE_DEBUG=attach npm test  # attach debugger
-TESTDRIVE_DEBUG=break npm test   # break on first line
+BINTASTIC_DEBUG=attach npm test  # attach debugger
+BINTASTIC_DEBUG=break npm test   # break on first line
 ```
 
 Or use `runBinDebug()` programmatically:
@@ -118,4 +118,4 @@ For VS Code, add to `.vscode/launch.json`:
 
 ## API
 
-See the [full API documentation](https://scalvert.github.io/testdrive/).
+See the [full API documentation](https://scalvert.github.io/bintastic/).

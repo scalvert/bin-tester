@@ -1,19 +1,19 @@
 import { execaNode, type Options, type ResultPromise } from 'execa';
-import TestDriveProject from './project';
+import BintasticProject from './project';
 /**
- * Options for configuring the test driver.
+ * Options for configuring bintastic.
  */
-export interface TestDriveOptions<TProject> {
+export interface BintasticOptions<TProject> {
   /**
    * The absolute path to the bin to invoke
    */
-  binPath: string | (<TProject extends TestDriveProject>(project: TProject) => string);
+  binPath: string | (<TProject extends BintasticProject>(project: TProject) => string);
   /**
    * An array of static arguments that will be used every time when running the bin
    */
   staticArgs?: string[];
   /**
-   * An optional function to use to create the project. Use this if you want to provide a custom implementation of a TestDriveProject.
+   * An optional function to use to create the project. Use this if you want to provide a custom implementation of a BintasticProject.
    */
   createProject?: () => Promise<TProject>;
 }
@@ -61,9 +61,9 @@ export interface RunBin {
 type RunBinArgs = (string | Options)[];
 
 /**
- * The result returned by createTestDriver.
+ * The result returned by createBintastic.
  */
-export interface CreateTestDriverResult<TProject extends TestDriveProject> {
+export interface CreateBintasticResult<TProject extends BintasticProject> {
   /**
    * Runs the configured bin function via execa.
    */
@@ -78,17 +78,17 @@ export interface CreateTestDriverResult<TProject extends TestDriveProject> {
   setupTmpDir: () => Promise<string>;
   /**
    * Tears the project down, ensuring the tmp directory is removed.
-   * When TESTDRIVE_DEBUG is set, fixtures are preserved for inspection.
+   * When BINTASTIC_DEBUG is set, fixtures are preserved for inspection.
    */
   teardownProject: () => void;
   /**
    * Runs the configured bin with Node inspector enabled in attach mode (--inspect).
-   * Set TESTDRIVE_DEBUG=break to break on first line instead.
+   * Set BINTASTIC_DEBUG=break to break on first line instead.
    */
   runBinDebug: RunBin;
 }
 
-const DEFAULT_TESTDRIVE_OPTIONS = {
+const DEFAULT_BINTASTIC_OPTIONS = {
   staticArgs: [],
 };
 
@@ -115,19 +115,19 @@ function parseArgs(args: RunBinArgs): RunOptions {
 }
 
 /**
- * Creates the test driver API functions to use within tests.
- * @param {TestDriveOptions<TProject>} options - An object of test driver options
- * @returns {CreateTestDriverResult<TProject>} - A project instance.
+ * Creates the bintastic API functions to use within tests.
+ * @param {BintasticOptions<TProject>} options - An object of bintastic options
+ * @returns {CreateBintasticResult<TProject>} - A project instance.
  */
-export function createTestDriver<TProject extends TestDriveProject>(
-  options: TestDriveOptions<TProject>
-): CreateTestDriverResult<TProject> {
+export function createBintastic<TProject extends BintasticProject>(
+  options: BintasticOptions<TProject>
+): CreateBintasticResult<TProject> {
   let project: TProject;
 
   const mergedOptions = {
-    ...DEFAULT_TESTDRIVE_OPTIONS,
+    ...DEFAULT_BINTASTIC_OPTIONS,
     ...options,
-  } as Required<TestDriveOptions<TProject>>;
+  } as Required<BintasticOptions<TProject>>;
 
   /**
    * @param {...RunBinArgs} args - Arguments or execa options.
@@ -141,7 +141,7 @@ export function createTestDriver<TProject extends TestDriveProject>(
         : mergedOptions.binPath;
 
     const optionsEnv = mergedRunOptions.execaOptions.env;
-    const debugEnv = optionsEnv?.TESTDRIVE_DEBUG ?? process.env.TESTDRIVE_DEBUG;
+    const debugEnv = optionsEnv?.BINTASTIC_DEBUG ?? process.env.BINTASTIC_DEBUG;
 
     const nodeOptions: string[] = [];
     if (debugEnv && debugEnv !== '0' && debugEnv.toLowerCase() !== 'false') {
@@ -150,7 +150,7 @@ export function createTestDriver<TProject extends TestDriveProject>(
       } else {
         nodeOptions.push('--inspect=0');
       }
-      console.log(`[testdrive] Debugging enabled. Fixture: ${project.baseDir}`);
+      console.log(`[bintastic] Debugging enabled. Fixture: ${project.baseDir}`);
     }
 
     const resolvedCwd = mergedRunOptions.execaOptions.cwd ?? project.baseDir;
@@ -170,12 +170,12 @@ export function createTestDriver<TProject extends TestDriveProject>(
   function runBinDebug(...args: RunBinArgs): ResultPromise {
     const parsedArgs = parseArgs(args);
     // Pass debug mode through execa env options to avoid race conditions with process.env
-    const debugEnv = process.env.TESTDRIVE_DEBUG || 'attach';
+    const debugEnv = process.env.BINTASTIC_DEBUG || 'attach';
     parsedArgs.execaOptions = {
       ...parsedArgs.execaOptions,
       env: {
         ...parsedArgs.execaOptions.env,
-        TESTDRIVE_DEBUG: debugEnv,
+        BINTASTIC_DEBUG: debugEnv,
       },
     };
     // Reconstruct args array with merged options
@@ -190,7 +190,7 @@ export function createTestDriver<TProject extends TestDriveProject>(
     project =
       'createProject' in mergedOptions
         ? await mergedOptions.createProject()
-        : (new TestDriveProject() as TProject);
+        : (new BintasticProject() as TProject);
 
     await project.write();
 
@@ -210,12 +210,12 @@ export function createTestDriver<TProject extends TestDriveProject>(
 
   /**
    * Tears the project down, ensuring the tmp directory is removed. Should be paired with setupProject.
-   * When TESTDRIVE_DEBUG is set, fixtures are preserved for inspection.
+   * When BINTASTIC_DEBUG is set, fixtures are preserved for inspection.
    */
   function teardownProject() {
-    const debugEnv = process.env.TESTDRIVE_DEBUG;
+    const debugEnv = process.env.BINTASTIC_DEBUG;
     if (debugEnv && debugEnv !== '0' && debugEnv.toLowerCase() !== 'false') {
-      console.log(`[testdrive] Fixture preserved: ${project.baseDir}`);
+      console.log(`[bintastic] Fixture preserved: ${project.baseDir}`);
       return;
     }
 
