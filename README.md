@@ -6,6 +6,8 @@
 ![Dependabot](https://badgen.net/badge/icon/dependabot?icon=dependabot&label)
 [![Code Style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](#badge)
 
+> **Note:** This package was formerly published as `@scalvert/bin-tester`.
+
 A test harness for Node.js CLI tools.
 
 Testing a CLI isn't like testing a library—you can't just import functions and call them. You need to spawn your CLI as a subprocess, give it real files to work with, and capture its output. testdrive simplifies this:
