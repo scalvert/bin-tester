@@ -3,6 +3,33 @@
 
 
 
+
+## v3.0.0 (2026-01-04)
+
+#### :boom: Breaking Change
+* [#243](https://github.com/scalvert/bin-tester/pull/243) feat: Upgrade execa from v5 to v9 ([@scalvert](https://github.com/scalvert))
+* [#229](https://github.com/scalvert/bin-tester/pull/229) feat: Add debugging support for bin testing ([@scalvert](https://github.com/scalvert))
+* [#227](https://github.com/scalvert/bin-tester/pull/227) fix: Fixes CI and removes lower node versions ([@scalvert](https://github.com/scalvert))
+* [#226](https://github.com/scalvert/bin-tester/pull/226) Updating package to latest node version, package versions.  ([@scalvert](https://github.com/scalvert))
+
+#### :rocket: Enhancement
+* [#229](https://github.com/scalvert/bin-tester/pull/229) feat: Add debugging support for bin testing ([@scalvert](https://github.com/scalvert))
+
+#### :memo: Documentation
+* [#231](https://github.com/scalvert/bin-tester/pull/231) docs: Add TypeDoc API documentation and markdown-code for snippet sync ([@scalvert](https://github.com/scalvert))
+* [#230](https://github.com/scalvert/bin-tester/pull/230) docs: Simplify README structure ([@scalvert](https://github.com/scalvert))
+
+#### :house: Internal
+* [#245](https://github.com/scalvert/bin-tester/pull/245) ci: Replace volta and setup-node with mise-action ([@scalvert](https://github.com/scalvert))
+* [#244](https://github.com/scalvert/bin-tester/pull/244) docs: Add CLAUDE.md for Claude Code guidance ([@scalvert](https://github.com/scalvert))
+* [#242](https://github.com/scalvert/bin-tester/pull/242) chore(deps): Update dev dependencies to latest major versions ([@scalvert](https://github.com/scalvert))
+* [#233](https://github.com/scalvert/bin-tester/pull/233) chore: Add format commands and improve lint script ([@scalvert](https://github.com/scalvert))
+* [#232](https://github.com/scalvert/bin-tester/pull/232) chore: Switch from pnpm to npm and volta to mise ([@scalvert](https://github.com/scalvert))
+
+#### Committers: 1
+- Steve Calvert ([@scalvert](https://github.com/scalvert))
+
+
 ## v2.1.1 (2022-04-26)
 
 #### :bug: Bug Fix
