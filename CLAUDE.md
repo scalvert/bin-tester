@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-testdrive is a test harness for Node.js CLI tools. It creates temporary directories with fixture files, spawns CLI binaries as subprocesses, and captures their output for assertion.
+bintastic is a test harness for Node.js CLI tools. It creates temporary directories with fixture files, spawns CLI binaries as subprocesses, and captures their output for assertion.
 
 ## Commands
 
@@ -27,13 +27,13 @@ npx vitest run -t "test name pattern"
 
 The library exports two main pieces:
 
-1. **`createTestDriver(options)`** - Factory function that returns test helpers:
-   - `setupProject()` - Creates a temp directory with a `TestDriveProject`
+1. **`createBintastic(options)`** - Factory function that returns test helpers:
+   - `setupProject()` - Creates a temp directory with a `BintasticProject`
    - `teardownProject()` - Cleans up the temp directory
    - `runBin(...args)` - Executes the configured CLI binary via `execaNode`
    - `runBinDebug(...args)` - Same as `runBin` but with Node inspector enabled
 
-2. **`TestDriveProject`** - Extends `fixturify-project`'s `Project` class. Provides:
+2. **`BintasticProject`** - Extends `fixturify-project`'s `Project` class. Provides:
    - `files` property for defining fixture files
    - `write()` to persist files to the temp directory
    - `gitInit()` to initialize a git repo
@@ -46,4 +46,4 @@ The library exports two main pieces:
 
 ## Debugging Tests
 
-Set `TESTDRIVE_DEBUG=attach` or `TESTDRIVE_DEBUG=break` to enable Node inspector and preserve fixture directories after test runs.
+Set `BINTASTIC_DEBUG=attach` or `BINTASTIC_DEBUG=break` to enable Node inspector and preserve fixture directories after test runs.

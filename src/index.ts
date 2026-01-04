@@ -1,7 +1,7 @@
 export {
-  createTestDriver,
-  TestDriveOptions,
-  CreateTestDriverResult,
+  createBintastic,
+  BintasticOptions,
+  CreateBintasticResult,
   RunBin,
-} from './create-test-driver';
-export { default as TestDriveProject } from './project';
+} from './create-bintastic';
+export { default as BintasticProject } from './project';
