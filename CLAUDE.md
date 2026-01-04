@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## CRITICAL: Do Not Release
 
 **NEVER release, publish, or attempt to release this package.** Do not:
+
 - Run `npm publish` or `release-it`
 - Modify version numbers in package.json for release purposes
 - Amend or modify release commits
