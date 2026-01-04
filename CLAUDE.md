@@ -2,6 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## CRITICAL: Do Not Release
+
+**NEVER release, publish, or attempt to release this package.** Do not:
+- Run `npm publish` or `release-it`
+- Modify version numbers in package.json for release purposes
+- Amend or modify release commits
+- Create release tags
+
+The maintainer handles all releases manually.
+
 ## Project Overview
 
 bintastic is a test harness for Node.js CLI tools. It creates temporary directories with fixture files, spawns CLI binaries as subprocesses, and captures their output for assertion.
