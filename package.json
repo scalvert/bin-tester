@@ -1,17 +1,21 @@
 {
-  "name": "@scalvert/bin-tester",
+  "name": "testdrive",
   "version": "3.0.0",
-  "description": "A test harness to invoke a CLI in a tmp directory",
+  "description": "A test harness for Node.js CLI tools",
   "keywords": [
     "cli",
-    "fake",
-    "project",
     "test",
-    "harness"
+    "harness",
+    "binary",
+    "subprocess"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/scalvert/bin-tester.git"
+    "url": "https://github.com/scalvert/testdrive.git"
+  },
+  "homepage": "https://github.com/scalvert/testdrive#readme",
+  "bugs": {
+    "url": "https://github.com/scalvert/testdrive/issues"
   },
   "license": "MIT",
   "author": "Steve Calvert <steve.calvert@gmail.com>",

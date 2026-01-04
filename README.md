@@ -1,17 +1,17 @@
-# @scalvert/bin-tester
+# testdrive
 
-![CI Build](https://github.com/scalvert/bin-tester/workflows/CI%20Build/badge.svg)
-[![npm version](https://badge.fury.io/js/%40scalvert%2Fbin-tester.svg)](https://badge.fury.io/js/%40scalvert%2Fbin-tester)
-[![License](https://img.shields.io/npm/l/@scalvert/bin-tester.svg)](https://github.com/scalvert/bin-tester/blob/master/package.json)
+![CI Build](https://github.com/scalvert/testdrive/workflows/CI%20Build/badge.svg)
+[![npm version](https://badge.fury.io/js/testdrive.svg)](https://badge.fury.io/js/testdrive)
+[![License](https://img.shields.io/npm/l/testdrive.svg)](https://github.com/scalvert/testdrive/blob/master/package.json)
 ![Dependabot](https://badgen.net/badge/icon/dependabot?icon=dependabot&label)
 [![Code Style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](#badge)
 
 A test harness for Node.js CLI tools.
 
-Testing a CLI isn't like testing a library—you can't just import functions and call them. You need to spawn your CLI as a subprocess, give it real files to work with, and capture its output. bin-tester simplifies this:
+Testing a CLI isn't like testing a library—you can't just import functions and call them. You need to spawn your CLI as a subprocess, give it real files to work with, and capture its output. testdrive simplifies this:
 
 ```ts snippet=basic-example.ts
-import { createBinTester } from '@scalvert/bin-tester';
+import { createBinTester } from 'testdrive';
 
 describe('my-cli', () => {
   const { setupProject, teardownProject, runBin } = createBinTester({
@@ -43,7 +43,7 @@ describe('my-cli', () => {
 ## Install
 
 ```bash
-npm add @scalvert/bin-tester --save-dev
+npm add testdrive --save-dev
 ```
 
 ## Usage
@@ -116,4 +116,4 @@ For VS Code, add to `.vscode/launch.json`:
 
 ## API
 
-See the [full API documentation](https://scalvert.github.io/bin-tester/).
+See the [full API documentation](https://scalvert.github.io/testdrive/).

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-bin-tester is a test harness for Node.js CLI tools. It creates temporary directories with fixture files, spawns CLI binaries as subprocesses, and captures their output for assertion.
+testdrive is a test harness for Node.js CLI tools. It creates temporary directories with fixture files, spawns CLI binaries as subprocesses, and captures their output for assertion.
 
 ## Commands
 
