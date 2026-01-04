@@ -11,10 +11,10 @@ A test harness for Node.js CLI tools.
 Testing a CLI isn't like testing a library—you can't just import functions and call them. You need to spawn your CLI as a subprocess, give it real files to work with, and capture its output. testdrive simplifies this:
 
 ```ts snippet=basic-example.ts
-import { createBinTester } from '@scalvert/bin-tester';
+import { createTestDriver } from 'testdrive';
 
 describe('my-cli', () => {
-  const { setupProject, teardownProject, runBin } = createBinTester({
+  const { setupProject, teardownProject, runBin } = createTestDriver({
     binPath: './bin/my-cli.js',
   });
 
@@ -48,10 +48,10 @@ npm add testdrive --save-dev
 
 ## Usage
 
-`createBinTester` returns helpers for setting up projects, running your CLI, and cleaning up:
+`createTestDriver` returns helpers for setting up projects, running your CLI, and cleaning up:
 
-```ts snippet=create-bin-tester.ts
-const { setupProject, teardownProject, runBin } = createBinTester({
+```ts snippet=create-test-driver.ts
+const { setupProject, teardownProject, runBin } = createTestDriver({
   binPath: './bin/my-cli.js',
   staticArgs: ['--verbose'], // args passed to every invocation
 });
@@ -87,11 +87,11 @@ result.stderr; // string
 
 ## Debugging
 
-Set `BIN_TESTER_DEBUG` to enable the Node inspector and preserve fixtures for inspection:
+Set `TESTDRIVE_DEBUG` to enable the Node inspector and preserve fixtures for inspection:
 
 ```bash
-BIN_TESTER_DEBUG=attach npm test  # attach debugger
-BIN_TESTER_DEBUG=break npm test   # break on first line
+TESTDRIVE_DEBUG=attach npm test  # attach debugger
+TESTDRIVE_DEBUG=break npm test   # break on first line
 ```
 
 Or use `runBinDebug()` programmatically:

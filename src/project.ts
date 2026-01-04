@@ -3,11 +3,11 @@ import { Project } from 'fixturify-project';
 
 const ROOT = process.cwd();
 
-export default class BinTesterProject extends Project {
+export default class TestDriveProject extends Project {
   private _dirChanged = false;
 
   /**
-   * Constructs an instance of a BinTesterProject.
+   * Constructs an instance of a TestDriveProject.
    * @param {string} name - The name of the project. Used within the package.json as the name property.
    * @param {string} version - The version of the project. Used within the package.json as the version property.
    * @param {Function} cb - An optional callback for additional setup steps after the project is constructed.

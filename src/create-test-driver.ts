@@ -1,19 +1,19 @@
 import { execaNode, type Options, type ResultPromise } from 'execa';
-import BinTesterProject from './project';
+import TestDriveProject from './project';
 /**
- * Options for configuring the bin tester.
+ * Options for configuring the test driver.
  */
-export interface BinTesterOptions<TProject> {
+export interface TestDriveOptions<TProject> {
   /**
    * The absolute path to the bin to invoke
    */
-  binPath: string | (<TProject extends BinTesterProject>(project: TProject) => string);
+  binPath: string | (<TProject extends TestDriveProject>(project: TProject) => string);
   /**
    * An array of static arguments that will be used every time when running the bin
    */
   staticArgs?: string[];
   /**
-   * An optional function to use to create the project. Use this if you want to provide a custom implementation of a BinTesterProject.
+   * An optional function to use to create the project. Use this if you want to provide a custom implementation of a TestDriveProject.
    */
   createProject?: () => Promise<TProject>;
 }
@@ -61,9 +61,9 @@ export interface RunBin {
 type RunBinArgs = (string | Options)[];
 
 /**
- * The result returned by createBinTester.
+ * The result returned by createTestDriver.
  */
-export interface CreateBinTesterResult<TProject extends BinTesterProject> {
+export interface CreateTestDriverResult<TProject extends TestDriveProject> {
   /**
    * Runs the configured bin function via execa.
    */
@@ -78,17 +78,17 @@ export interface CreateBinTesterResult<TProject extends BinTesterProject> {
   setupTmpDir: () => Promise<string>;
   /**
    * Tears the project down, ensuring the tmp directory is removed.
-   * When BIN_TESTER_DEBUG is set, fixtures are preserved for inspection.
+   * When TESTDRIVE_DEBUG is set, fixtures are preserved for inspection.
    */
   teardownProject: () => void;
   /**
    * Runs the configured bin with Node inspector enabled in attach mode (--inspect).
-   * Set BIN_TESTER_DEBUG=break to break on first line instead.
+   * Set TESTDRIVE_DEBUG=break to break on first line instead.
    */
   runBinDebug: RunBin;
 }
 
-const DEFAULT_BIN_TESTER_OPTIONS = {
+const DEFAULT_TESTDRIVE_OPTIONS = {
   staticArgs: [],
 };
 
@@ -115,19 +115,19 @@ function parseArgs(args: RunBinArgs): RunOptions {
 }
 
 /**
- * Creates the bin tester API functions to use within tests.
- * @param {BinTesterOptions<TProject>} options - An object of bin tester options
- * @returns {CreateBinTesterResult<TProject>} - A project instance.
+ * Creates the test driver API functions to use within tests.
+ * @param {TestDriveOptions<TProject>} options - An object of test driver options
+ * @returns {CreateTestDriverResult<TProject>} - A project instance.
  */
-export function createBinTester<TProject extends BinTesterProject>(
-  options: BinTesterOptions<TProject>
-): CreateBinTesterResult<TProject> {
+export function createTestDriver<TProject extends TestDriveProject>(
+  options: TestDriveOptions<TProject>
+): CreateTestDriverResult<TProject> {
   let project: TProject;
 
   const mergedOptions = {
-    ...DEFAULT_BIN_TESTER_OPTIONS,
+    ...DEFAULT_TESTDRIVE_OPTIONS,
     ...options,
-  } as Required<BinTesterOptions<TProject>>;
+  } as Required<TestDriveOptions<TProject>>;
 
   /**
    * @param {...RunBinArgs} args - Arguments or execa options.
@@ -141,7 +141,7 @@ export function createBinTester<TProject extends BinTesterProject>(
         : mergedOptions.binPath;
 
     const optionsEnv = mergedRunOptions.execaOptions.env;
-    const debugEnv = optionsEnv?.BIN_TESTER_DEBUG ?? process.env.BIN_TESTER_DEBUG;
+    const debugEnv = optionsEnv?.TESTDRIVE_DEBUG ?? process.env.TESTDRIVE_DEBUG;
 
     const nodeOptions: string[] = [];
     if (debugEnv && debugEnv !== '0' && debugEnv.toLowerCase() !== 'false') {
@@ -150,7 +150,7 @@ export function createBinTester<TProject extends BinTesterProject>(
       } else {
         nodeOptions.push('--inspect=0');
       }
-      console.log(`[bin-tester] Debugging enabled. Fixture: ${project.baseDir}`);
+      console.log(`[testdrive] Debugging enabled. Fixture: ${project.baseDir}`);
     }
 
     const resolvedCwd = mergedRunOptions.execaOptions.cwd ?? project.baseDir;
@@ -170,12 +170,12 @@ export function createBinTester<TProject extends BinTesterProject>(
   function runBinDebug(...args: RunBinArgs): ResultPromise {
     const parsedArgs = parseArgs(args);
     // Pass debug mode through execa env options to avoid race conditions with process.env
-    const debugEnv = process.env.BIN_TESTER_DEBUG || 'attach';
+    const debugEnv = process.env.TESTDRIVE_DEBUG || 'attach';
     parsedArgs.execaOptions = {
       ...parsedArgs.execaOptions,
       env: {
         ...parsedArgs.execaOptions.env,
-        BIN_TESTER_DEBUG: debugEnv,
+        TESTDRIVE_DEBUG: debugEnv,
       },
     };
     // Reconstruct args array with merged options
@@ -190,7 +190,7 @@ export function createBinTester<TProject extends BinTesterProject>(
     project =
       'createProject' in mergedOptions
         ? await mergedOptions.createProject()
-        : (new BinTesterProject() as TProject);
+        : (new TestDriveProject() as TProject);
 
     await project.write();
 
@@ -210,12 +210,12 @@ export function createBinTester<TProject extends BinTesterProject>(
 
   /**
    * Tears the project down, ensuring the tmp directory is removed. Should be paired with setupProject.
-   * When BIN_TESTER_DEBUG is set, fixtures are preserved for inspection.
+   * When TESTDRIVE_DEBUG is set, fixtures are preserved for inspection.
    */
   function teardownProject() {
-    const debugEnv = process.env.BIN_TESTER_DEBUG;
+    const debugEnv = process.env.TESTDRIVE_DEBUG;
     if (debugEnv && debugEnv !== '0' && debugEnv.toLowerCase() !== 'false') {
-      console.log(`[bin-tester] Fixture preserved: ${project.baseDir}`);
+      console.log(`[testdrive] Fixture preserved: ${project.baseDir}`);
       return;
     }
 

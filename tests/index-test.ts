@@ -1,13 +1,13 @@
 import { statSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, test, expect } from 'vitest';
-import { createBinTester, BinTesterProject } from '../src';
+import { createTestDriver, TestDriveProject } from '../src';
 
-class FakeProject extends BinTesterProject {}
+class FakeProject extends TestDriveProject {}
 
-describe('createBinTester', () => {
-  test('should return object with specific properties from createBinTester', () => {
-    const { runBin, setupProject, setupTmpDir, teardownProject } = createBinTester({
+describe('createTestDriver', () => {
+  test('should return object with specific properties from createTestDriver', () => {
+    const { runBin, setupProject, setupTmpDir, teardownProject } = createTestDriver({
       binPath: './foo',
     });
 
@@ -18,7 +18,7 @@ describe('createBinTester', () => {
   });
 
   test('setupTmpDir should return a tmpDir that points to a tmp dir path', async () => {
-    const { setupTmpDir } = createBinTester({
+    const { setupTmpDir } = createTestDriver({
       binPath: './foo',
     });
 
@@ -28,17 +28,17 @@ describe('createBinTester', () => {
   });
 
   test('setupProject should return a default project', async () => {
-    const { setupProject } = createBinTester({
+    const { setupProject } = createTestDriver({
       binPath: './foo',
     });
 
     const project = await setupProject();
 
-    expect(project).toBeInstanceOf(BinTesterProject);
+    expect(project).toBeInstanceOf(TestDriveProject);
   });
 
   test('setupProject should return a custom project', async () => {
-    const { setupProject } = createBinTester({
+    const { setupProject } = createTestDriver({
       binPath: './foo',
       createProject: async () => new FakeProject(),
     });
@@ -49,13 +49,13 @@ describe('createBinTester', () => {
   });
 
   test('teardownProject should result in the project being disposed of', async () => {
-    const { setupProject, teardownProject } = createBinTester({
+    const { setupProject, teardownProject } = createTestDriver({
       binPath: './foo',
     });
 
     const project = await setupProject();
 
-    expect(project).toBeInstanceOf(BinTesterProject);
+    expect(project).toBeInstanceOf(TestDriveProject);
 
     teardownProject();
 
@@ -63,7 +63,7 @@ describe('createBinTester', () => {
   });
 
   test('runBin can run the configured bin script', async () => {
-    const { setupProject, teardownProject, runBin } = createBinTester({
+    const { setupProject, teardownProject, runBin } = createTestDriver({
       binPath: fileURLToPath(new URL('fixtures/fake-bin.js', import.meta.url)),
     });
 
@@ -79,7 +79,7 @@ describe('createBinTester', () => {
   });
 
   test('runBin can run the configured bin script dynamically', async () => {
-    const { setupProject, teardownProject, runBin } = createBinTester({
+    const { setupProject, teardownProject, runBin } = createTestDriver({
       binPath: (p) => {
         expect(p).toEqual(project);
         return fileURLToPath(new URL('fixtures/fake-bin.js', import.meta.url));
@@ -98,7 +98,7 @@ describe('createBinTester', () => {
   });
 
   test('runBin can run the configured bin script with static arguments', async () => {
-    const { setupProject, teardownProject, runBin } = createBinTester({
+    const { setupProject, teardownProject, runBin } = createTestDriver({
       binPath: fileURLToPath(new URL('fixtures/fake-bin.js', import.meta.url)),
       staticArgs: ['--static', 'true'],
     });
@@ -117,7 +117,7 @@ describe('createBinTester', () => {
   });
 
   test('runBin can run the configured bin script with arguments', async () => {
-    const { setupProject, teardownProject, runBin } = createBinTester({
+    const { setupProject, teardownProject, runBin } = createTestDriver({
       binPath: fileURLToPath(new URL('fixtures/fake-bin.js', import.meta.url)),
     });
 
@@ -135,7 +135,7 @@ describe('createBinTester', () => {
   });
 
   test('runBin can run the configured bin script with arguments and execa options', async () => {
-    const { setupProject, teardownProject, runBin } = createBinTester({
+    const { setupProject, teardownProject, runBin } = createTestDriver({
       binPath: fileURLToPath(new URL('fixtures/fake-bin-with-env.js', import.meta.url)),
     });
 
@@ -143,8 +143,8 @@ describe('createBinTester', () => {
 
     const result = await runBin('--with', 'some', '--arguments', {
       env: {
-        BIN_TESTER: true,
-        BIN_TESTER_DEBUG: 'false',
+        TESTDRIVE: true,
+        TESTDRIVE_DEBUG: 'false',
         NODE_OPTIONS: '',
       },
     });
@@ -157,15 +157,15 @@ describe('createBinTester', () => {
     expect(existsSync(project.baseDir)).toEqual(false);
   });
 
-  test('BIN_TESTER_DEBUG env toggles inspector flags passed to child', async () => {
-    const { setupProject, teardownProject, runBin } = createBinTester({
+  test('TESTDRIVE_DEBUG env toggles inspector flags passed to child', async () => {
+    const { setupProject, teardownProject, runBin } = createTestDriver({
       binPath: fileURLToPath(new URL('fixtures/print-exec-argv.js', import.meta.url)),
     });
 
     const project = await setupProject();
 
     try {
-      process.env.BIN_TESTER_DEBUG = 'attach';
+      process.env.TESTDRIVE_DEBUG = 'attach';
 
       const result = await runBin({});
 
@@ -174,7 +174,7 @@ describe('createBinTester', () => {
       expect(Array.isArray(execArgv)).toEqual(true);
       expect(execArgv.find((a: string) => a.startsWith('--inspect'))).toBeTypeOf('string');
     } finally {
-      delete process.env.BIN_TESTER_DEBUG;
+      delete process.env.TESTDRIVE_DEBUG;
       teardownProject();
     }
 
@@ -182,33 +182,33 @@ describe('createBinTester', () => {
   });
 
   test('runBinDebug enables inspector flags without global env change', async () => {
-    const { setupProject, teardownProject, runBinDebug } = createBinTester({
+    const { setupProject, teardownProject, runBinDebug } = createTestDriver({
       binPath: fileURLToPath(new URL('fixtures/print-exec-argv.js', import.meta.url)),
     });
 
     const project = await setupProject();
 
-    const before = process.env.BIN_TESTER_DEBUG;
+    const before = process.env.TESTDRIVE_DEBUG;
     expect(before).toBeUndefined();
 
     const result = await runBinDebug({});
     const execArgv = JSON.parse(result.stdout);
     expect(execArgv.find((a: string) => a.startsWith('--inspect'))).toBeTypeOf('string');
-    expect(process.env.BIN_TESTER_DEBUG).toBeUndefined();
+    expect(process.env.TESTDRIVE_DEBUG).toBeUndefined();
 
     teardownProject();
     expect(existsSync(project.baseDir)).toEqual(false);
   });
 
-  test('BIN_TESTER_DEBUG preserves tmp dir on teardown', async () => {
-    const { setupProject, teardownProject, runBin } = createBinTester({
+  test('TESTDRIVE_DEBUG preserves tmp dir on teardown', async () => {
+    const { setupProject, teardownProject, runBin } = createTestDriver({
       binPath: fileURLToPath(new URL('fixtures/fake-bin.js', import.meta.url)),
     });
 
     const project = await setupProject();
 
     try {
-      process.env.BIN_TESTER_DEBUG = 'attach';
+      process.env.TESTDRIVE_DEBUG = 'attach';
       await runBin();
 
       teardownProject();
@@ -216,7 +216,7 @@ describe('createBinTester', () => {
       // With DEBUG set, the directory should still exist
       expect(existsSync(project.baseDir)).toEqual(true);
     } finally {
-      delete process.env.BIN_TESTER_DEBUG;
+      delete process.env.TESTDRIVE_DEBUG;
       teardownProject();
     }
 

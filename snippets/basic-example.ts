@@ -1,7 +1,7 @@
-import { createBinTester } from '@scalvert/bin-tester';
+import { createTestDriver } from 'testdrive';
 
 describe('my-cli', () => {
-  const { setupProject, teardownProject, runBin } = createBinTester({
+  const { setupProject, teardownProject, runBin } = createTestDriver({
     binPath: './bin/my-cli.js',
   });
 
