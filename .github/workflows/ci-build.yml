@@ -21,9 +21,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: volta-cli/action@v4
+      - uses: jdx/mise-action@v2
         with:
-          node-version: ${{ matrix.node }}
+          install_args: node@${{ matrix.node }}
       - name: install dependencies
         run: npm install
       - name: build
