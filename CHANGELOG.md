@@ -5,6 +5,16 @@
 
 
 
+
+## v4.0.0 (2026-01-04)
+
+#### :boom: Breaking Change
+* [#247](https://github.com/scalvert/bintastic/pull/247) Rename package from testdrive to bintastic ([@scalvert](https://github.com/scalvert))
+
+#### Committers: 1
+- Steve Calvert ([@scalvert](https://github.com/scalvert))
+
+
 ## v3.0.0 (2026-01-04)
 
 #### :boom: Breaking Change
