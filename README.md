@@ -8,7 +8,7 @@
 
 > **Note:** This package was formerly published as `@scalvert/bin-tester`.
 
-A test harness for Node.js CLI tools.
+A fantastic way to exercise your binaries in synthetic environments
 
 Testing a CLI isn't like testing a library—you can't just import functions and call them. You need to spawn your CLI as a subprocess, give it real files to work with, and capture its output. bintastic simplifies this:
 
