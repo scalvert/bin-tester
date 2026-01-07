@@ -1,6 +1,6 @@
 {
   "name": "bintastic",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "A test harness for Node.js CLI tools",
   "keywords": [
     "cli",

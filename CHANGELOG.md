@@ -6,6 +6,16 @@
 
 
 
+
+## v4.0.1 (2026-01-07)
+
+#### :bug: Bug Fix
+* [#248](https://github.com/scalvert/bintastic/pull/248) Fix BintasticProject.write() signature and re-export dependency types ([@scalvert](https://github.com/scalvert))
+
+#### Committers: 1
+- Steve Calvert ([@scalvert](https://github.com/scalvert))
+
+
 ## v4.0.0 (2026-01-04)
 
 #### :boom: Breaking Change
