@@ -8,9 +8,11 @@
 
 > **Note:** This package was formerly published as `@scalvert/bin-tester`.
 
-A fantastic way to exercise your binaries in synthetic environments
+<p align="center">
+  <img src="./bintastic.png" alt="bintastic" width="400" />
+</p>
 
-Testing a CLI isn't like testing a library—you can't just import functions and call them. You need to spawn your CLI as a subprocess, give it real files to work with, and capture its output. bintastic simplifies this:
+Testing a CLI isn't like testing a library—you can't just import functions and call them. You need to spawn your CLI as a subprocess, give it real files to work with, and capture its output. `bintastic` simplifies this:
 
 ```ts snippet=basic-example.ts
 import { createBintastic } from 'bintastic';
