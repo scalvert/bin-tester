@@ -41,16 +41,24 @@ export default class BintasticProject extends Project {
   }
 
   /**
-   * Correctly disposes of the project, observing when the directory has been changed.
-   * @returns {void}
+   * Returns to the directory that was current before `chdir()`, leaving the project on disk.
+   * Does nothing if `chdir()` hasn't been called.
    */
-  dispose(): void {
+  restoreCwd(): void {
     const previousCwd = this._previousCwd;
     this._previousCwd = undefined;
 
     if (previousCwd) {
       process.chdir(previousCwd);
     }
+  }
+
+  /**
+   * Correctly disposes of the project, observing when the directory has been changed.
+   * @returns {void}
+   */
+  dispose(): void {
+    this.restoreCwd();
 
     return super.dispose();
   }

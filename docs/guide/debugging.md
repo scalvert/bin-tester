@@ -11,7 +11,7 @@ BINTASTIC_DEBUG=attach npm test  # attach debugger
 BINTASTIC_DEBUG=break npm test   # break on first line
 ```
 
-`attach` runs the binary with `--inspect` so you can connect a debugger while it executes; `break` uses `--inspect-brk` to pause on the first line. In either mode the temp directory is left on disk and its path is logged so you can examine the fixtures after the run.
+`attach` runs the binary with `--inspect` so you can connect a debugger while it executes; `break` uses `--inspect-brk` to pause on the first line. In either mode the temp directory is left on disk and its path is logged so you can examine the fixtures after the run. Each test's fixture is kept, not just the last one: later calls to `setupProject` never remove a preserved directory. Teardown still restores the working directory and releases the project, so `runBin` after teardown throws as usual. Under Vitest, preserved directories stay in your OS temp directory after the run until you delete them.
 
 The value is read the same way everywhere:
 
