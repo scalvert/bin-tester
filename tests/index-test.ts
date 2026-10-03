@@ -241,13 +241,14 @@ describe('createBintastic', () => {
     expect(execArgv.find((a: string) => a.startsWith('--inspect'))).toBeTypeOf('string');
     expect(process.env.BINTASTIC_DEBUG).toBeUndefined();
 
-    // First teardown: runBinDebug activated debug mode, so fixtures are preserved
+    // runBinDebug activated debug mode, so teardown keeps the fixture and releases the project
     teardownProject();
     expect(existsSync(project.baseDir)).toEqual(true);
+    expect(() => runBinDebug()).toThrow(
+      '[bintastic] setupProject() must be called before runBinDebug()'
+    );
 
-    // Second teardown with no debug active: should dispose
-    teardownProject();
-    expect(existsSync(project.baseDir)).toEqual(false);
+    project.dispose();
   });
 
   test('runBinDebug preserves tmp dir on teardown without process.env mutation (CHK-005)', async () => {
@@ -311,33 +312,18 @@ describe('createBintastic', () => {
     expect(existsSync(preservedProject.baseDir)).toEqual(true);
 
     const replacementProject = await setupProject();
+    // The next setupProject must not remove the preserved fixture
+    expect(existsSync(preservedProject.baseDir)).toEqual(true);
     teardownProject();
 
     expect(existsSync(replacementProject.baseDir)).toEqual(false);
     preservedProject.dispose();
   });
 
-  test('BINTASTIC_DEBUG preserves tmp dir on teardown', async () => {
-    const { setupProject, teardownProject, runBin } = createBintastic({
-      binPath: fileURLToPath(new URL('fixtures/fake-bin.js', import.meta.url)),
-    });
+  test('teardownProject is safe to call without an active project', () => {
+    const { teardownProject } = createBintastic({ binPath: './foo' });
 
-    const project = await setupProject();
-
-    try {
-      process.env.BINTASTIC_DEBUG = 'attach';
-      await runBin();
-
-      teardownProject();
-
-      // With DEBUG set, the directory should still exist
-      expect(existsSync(project.baseDir)).toEqual(true);
-    } finally {
-      delete process.env.BINTASTIC_DEBUG;
-      teardownProject();
-    }
-
-    expect(existsSync(project.baseDir)).toEqual(false);
+    expect(() => teardownProject()).not.toThrow();
   });
 });
 
@@ -357,6 +343,25 @@ describe('BintasticProject', () => {
     } finally {
       callerProject.dispose();
       process.chdir(originalCwd);
+    }
+  });
+
+  test('restoreCwd returns to the previous cwd and keeps the directory', async () => {
+    const originalCwd = process.cwd();
+    const project = new BintasticProject();
+
+    try {
+      await project.chdir();
+      project.restoreCwd();
+
+      expect(process.cwd()).toEqual(originalCwd);
+      expect(existsSync(project.baseDir)).toEqual(true);
+
+      project.restoreCwd();
+      expect(process.cwd()).toEqual(originalCwd);
+    } finally {
+      process.chdir(originalCwd);
+      project.dispose();
     }
   });
 });

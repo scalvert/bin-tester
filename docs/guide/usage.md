@@ -37,6 +37,10 @@ const project = await setupProject(); // creates temp directory
 teardownProject(); // removes temp directory
 ```
 
+`teardownProject` also returns to the working directory you were in before `project.chdir()`, and it's safe to call when no project is active, so an `afterEach` can't mask a failure in `beforeEach`. Calling `setupProject` again without tearing down first tears the previous project down for you.
+
+To leave a project's directory without removing it, call `project.restoreCwd()`.
+
 ## Writing fixture files
 
 Pass a directory tree directly to `write()` to create fixture files—directory names are keys, file contents are string values. The `text` and `json` helpers are tagged-template functions that dedent text content and normalize JSON respectively:
