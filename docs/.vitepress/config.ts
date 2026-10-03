@@ -6,6 +6,8 @@ export default defineConfig({
   title: 'bintastic',
   description: 'A test harness for Node.js CLI tools',
   cleanUrls: true,
+  // Architecture decision records are for maintainers, not the published site.
+  srcExclude: ['adr/**'],
   themeConfig: {
     logo: {
       light: '/bintastic-icon.svg',
